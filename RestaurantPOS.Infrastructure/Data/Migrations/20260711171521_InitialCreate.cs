@@ -1849,7 +1849,7 @@ namespace RestaurantPOS.Infrastructure.Data.Migrations
                         column: x => x.ShiftId,
                         principalTable: "Shifts",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(

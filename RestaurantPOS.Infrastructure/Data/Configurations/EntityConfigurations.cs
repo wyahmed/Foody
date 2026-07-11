@@ -53,7 +53,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.HasOne(o => o.Branch).WithMany(b => b.Orders).HasForeignKey(o => o.BranchId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(o => o.Customer).WithMany(c => c.Orders).HasForeignKey(o => o.CustomerId).OnDelete(DeleteBehavior.SetNull);
         builder.HasOne(o => o.Table).WithMany(t => t.Orders).HasForeignKey(o => o.TableId).OnDelete(DeleteBehavior.SetNull);
-        builder.HasOne(o => o.Shift).WithMany(s => s.Orders).HasForeignKey(o => o.ShiftId).OnDelete(DeleteBehavior.SetNull);
+        builder.HasOne(o => o.Shift).WithMany(s => s.Orders).HasForeignKey(o => o.ShiftId).OnDelete(DeleteBehavior.Restrict);
     }
 }
 

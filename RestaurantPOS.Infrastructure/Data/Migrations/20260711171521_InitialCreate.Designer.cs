@@ -4597,7 +4597,7 @@ namespace RestaurantPOS.Infrastructure.Data.Migrations
                     b.HasOne("RestaurantPOS.Domain.Entities.Shift", "Shift")
                         .WithMany("Orders")
                         .HasForeignKey("ShiftId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("RestaurantPOS.Domain.Entities.DiningTable", "Table")
                         .WithMany("Orders")
