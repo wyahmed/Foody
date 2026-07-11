@@ -119,7 +119,7 @@ docker-compose up -d
 
 ```bash
 # Build
-dotnet build RestaurantPOS.slnx
+dotnet build RestaurantPOS.sln
 
 # Add migration
 dotnet ef migrations add <Name> --project RestaurantPOS.Infrastructure --startup-project RestaurantPOS.Web --output-dir Data/Migrations
