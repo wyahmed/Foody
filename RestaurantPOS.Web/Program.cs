@@ -1,10 +1,12 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using RestaurantPOS.Application;
 using RestaurantPOS.Infrastructure;
 using RestaurantPOS.Infrastructure.Data.Seed;
 using RestaurantPOS.Infrastructure.Services;
 using Serilog;
 using Serilog.Events;
-using Microsoft.AspNetCore.Localization;
 using System.Globalization;
 
 // --- Serilog Bootstrap ---
@@ -28,6 +30,19 @@ try
     // --- Application + Infrastructure layers ---
     builder.Services.AddApplication();
     builder.Services.AddInfrastructure(builder.Configuration);
+
+    // Infrastructure registers JWT as the default auth scheme (for the API).
+    // For the Web (Razor Pages) app we need cookie/Identity as the default so
+    // SignInManager and [Authorize] work correctly in the browser.
+    builder.Services.PostConfigure<AuthenticationOptions>(opts =>
+    {
+        opts.DefaultScheme = IdentityConstants.ApplicationScheme;
+        opts.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+        opts.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+        opts.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+        opts.DefaultSignOutScheme = IdentityConstants.ApplicationScheme;
+        opts.DefaultForbidScheme = IdentityConstants.ApplicationScheme;
+    });
 
     // --- Razor Pages with antiforgery ---
     builder.Services.AddRazorPages(options =>
