@@ -1,0 +1,86 @@
+version: '3.9'
+
+services:
+  # SQL Server
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: restaurantpos_sqlserver
+    environment:
+      SA_PASSWORD: "RestaurantPOS@2024!"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Express"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P RestaurantPOS@2024! -Q 'SELECT 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # Redis (optional caching)
+  redis:
+    image: redis:7-alpine
+    container_name: restaurantpos_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # Web Application (Razor Pages)
+  web:
+    build:
+      context: .
+      dockerfile: RestaurantPOS.Web/Dockerfile
+    container_name: restaurantpos_web
+    ports:
+      - "8080:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=RestaurantPOS;User Id=sa;******;TrustServerCertificate=True;
+      - ConnectionStrings__Redis=redis:6379
+      - Jwt__Key=RestaurantPOS-SuperSecret-JWT-Key-2024-ChangeInProduction!
+      - Jwt__Issuer=RestaurantPOS
+      - Jwt__Audience=RestaurantPOS.Clients
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # REST API
+  api:
+    build:
+      context: .
+      dockerfile: RestaurantPOS.API/Dockerfile
+    container_name: restaurantpos_api
+    ports:
+      - "8081:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=RestaurantPOS;User Id=sa;******;TrustServerCertificate=True;
+      - ConnectionStrings__Redis=redis:6379
+      - Jwt__Key=RestaurantPOS-SuperSecret-JWT-Key-2024-ChangeInProduction!
+      - Jwt__Issuer=RestaurantPOS
+      - Jwt__Audience=RestaurantPOS.Clients
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  sqlserver_data:
+  redis_data:
+
+networks:
+  default:
+    name: restaurantpos_network

@@ -1,0 +1,154 @@
+@page
+@model RestaurantPOS.Web.Pages.Settings.IndexModel
+@{
+    ViewData["Title"] = "Settings";
+    ViewData["ActivePage"] = "Settings";
+}
+
+<h4 class="mb-4"><i class="bi bi-gear me-2"></i>@Localizer["Settings"]</h4>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show"><i class="bi bi-check-circle me-2"></i>@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+}
+
+<div class="row g-4">
+    <!-- Business Info -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header fw-semibold">@Localizer["Business Information"]</div>
+            <div class="card-body">
+                <form method="post" asp-page-handler="SaveBusiness">
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["Business Name (EN)"]</label>
+                        <input type="text" name="BusinessName" value="@Model.GetSetting("BusinessName")" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["Business Name (AR)"]</label>
+                        <input type="text" name="BusinessNameAr" value="@Model.GetSetting("BusinessNameAr")" class="form-control" dir="rtl" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["VAT Number"]</label>
+                        <input type="text" name="VatNumber" value="@Model.GetSetting("VatNumber")" class="form-control" placeholder="3XXXXXXXXXXXXXXXXX3" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["Commercial Registration"]</label>
+                        <input type="text" name="CRNumber" value="@Model.GetSetting("CRNumber")" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["Phone"]</label>
+                        <input type="text" name="Phone" value="@Model.GetSetting("Phone")" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["Address"]</label>
+                        <textarea name="Address" class="form-control" rows="2">@Model.GetSetting("Address")</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>@Localizer["Save"]
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tax & Finance -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header fw-semibold">@Localizer["Tax & Finance"]</div>
+            <div class="card-body">
+                <form method="post" asp-page-handler="SaveTax">
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["Default VAT Rate (%)"]</label>
+                        <input type="number" name="DefaultVatRate" value="@Model.GetSetting("DefaultVatRate", "15")" class="form-control" step="0.01" min="0" max="100" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["Service Charge (%)"]</label>
+                        <input type="number" name="ServiceCharge" value="@Model.GetSetting("ServiceCharge", "0")" class="form-control" step="0.01" min="0" max="100" />
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="PricesIncludeVat" value="true"
+                                   checked="@(Model.GetSetting("PricesIncludeVat") == "true")" />
+                            <label class="form-check-label">@Localizer["Prices include VAT"]</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["Currency"]</label>
+                        <input type="text" name="Currency" value="@Model.GetSetting("Currency", "SAR")" class="form-control" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>@Localizer["Save"]
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Receipt Settings -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header fw-semibold">@Localizer["Receipt Settings"]</div>
+            <div class="card-body">
+                <form method="post" asp-page-handler="SaveReceipt">
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["Receipt Footer"]</label>
+                        <textarea name="ReceiptFooter" class="form-control" rows="2">@Model.GetSetting("ReceiptFooter")</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="PrintQrCode" value="true"
+                                   checked="@(Model.GetSetting("PrintQrCode", "true") == "true")" />
+                            <label class="form-check-label">@Localizer["Print QR Code on Receipt"]</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="AutoPrint" value="true"
+                                   checked="@(Model.GetSetting("AutoPrint") == "true")" />
+                            <label class="form-check-label">@Localizer["Auto-print receipt on payment"]</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>@Localizer["Save"]
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ZATCA -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header fw-semibold d-flex align-items-center gap-2">
+                @Localizer["ZATCA e-Invoicing"]
+                <span class="badge bg-success">Phase 2</span>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-page-handler="SaveZatca">
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["Seller Name"]</label>
+                        <input type="text" name="ZatcaSellerName" value="@Model.GetSetting("ZatcaSellerName")" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["Certificate (Base64)"]</label>
+                        <textarea name="ZatcaCertificate" class="form-control font-monospace small" rows="3">@Model.GetSetting("ZatcaCertificate")</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["Private Key (Base64)"]</label>
+                        <textarea name="ZatcaPrivateKey" class="form-control font-monospace small" rows="3">@Model.GetSetting("ZatcaPrivateKey")</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="ZatcaSimulation" value="true"
+                                   checked="@(Model.GetSetting("ZatcaSimulation", "true") == "true")" />
+                            <label class="form-check-label">@Localizer["Simulation Mode"]</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save me-1"></i>@Localizer["Save"]
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

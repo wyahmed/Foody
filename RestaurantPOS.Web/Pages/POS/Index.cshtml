@@ -1,0 +1,480 @@
+@page "/POS"
+@model RestaurantPOS.Web.Pages.POS.IndexModel
+@{
+    ViewData["Title"] = "POS";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <style>
+        .pos-screen { height: calc(100vh - 56px - 2rem); display: flex; flex-direction: column; }
+        .pos-categories { overflow-x: auto; white-space: nowrap; }
+        .category-btn { border-radius: 20px; padding: 6px 18px; font-size: .85rem; cursor: pointer; }
+        .category-btn.active { background: var(--pos-primary); color: #fff; border-color: var(--pos-primary); }
+        .pos-products { flex: 1; overflow-y: auto; }
+        .pos-right { display: flex; flex-direction: column; height: 100%; min-width: 340px; max-width: 380px; }
+        .order-items { flex: 1; overflow-y: auto; }
+        .numpad-btn { font-size: 1.25rem; font-weight: 600; padding: 12px; }
+    </style>
+}
+
+<div class="pos-screen" id="pos-app">
+    <!-- POS Toolbar -->
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <!-- Order type selector -->
+        <div class="btn-group btn-group-sm" role="group">
+            @foreach (var type in new[] { ("DineIn", "bi-table", "Dine In"), ("TakeAway", "bi-bag", "Take Away"), ("Delivery", "bi-bicycle", "Delivery") })
+            {
+                <input type="radio" class="btn-check" name="orderType" id="ot_@type.Item1"
+                       value="@type.Item1" @(Model.SelectedOrderType == type.Item1 ? "checked" : "") />
+                <label class="btn btn-outline-secondary" for="ot_@type.Item1">
+                    <i class="bi @type.Item2 me-1"></i>@type.Item3
+                </label>
+            }
+        </div>
+
+        <!-- Table selector (only for Dine-In) -->
+        <select class="form-select form-select-sm w-auto" id="tableSelect">
+            <option value="">Select Table</option>
+            @foreach (var table in Model.Tables)
+            {
+                <option value="@table.Id" data-status="@table.Status">@table.Name (@table.Status)</option>
+            }
+        </select>
+
+        <!-- Customer search -->
+        <div class="input-group input-group-sm" style="max-width:200px">
+            <span class="input-group-text"><i class="bi bi-person"></i></span>
+            <input type="text" class="form-control" id="customerSearch" placeholder="Customer..." />
+        </div>
+
+        <div class="ms-auto d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm" onclick="openShift()">
+                <i class="bi bi-safe me-1"></i>Shift
+            </button>
+            <button class="btn btn-outline-danger btn-sm" onclick="voidOrder()">
+                <i class="bi bi-x-circle me-1"></i>Void
+            </button>
+        </div>
+    </div>
+
+    <div class="d-flex gap-3 flex-grow-1" style="min-height:0">
+        <!-- Left: Products -->
+        <div class="flex-grow-1 d-flex flex-column" style="min-width:0">
+            <!-- Category filter -->
+            <div class="pos-categories mb-3">
+                <div class="d-inline-flex gap-2">
+                    <button class="btn btn-sm category-btn active" onclick="filterCategory(null, this)"
+                            data-category="">
+                        All
+                    </button>
+                    @foreach (var cat in Model.Categories)
+                    {
+                        <button class="btn btn-sm btn-outline-secondary category-btn"
+                                onclick="filterCategory('@cat.Id', this)"
+                                data-category="@cat.Id">
+                            @cat.Name
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <!-- Product search bar -->
+            <div class="input-group mb-3">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control" id="productSearch"
+                       placeholder="Search by name or barcode (Alt+S)" />
+                <span class="input-group-text text-muted small">Alt+S</span>
+            </div>
+
+            <!-- Product grid -->
+            <div class="pos-products">
+                <div class="pos-product-grid" id="productGrid">
+                    @foreach (var product in Model.Products)
+                    {
+                        <button class="pos-product-btn"
+                                onclick="addToOrder('@product.Id', '@product.Name.Replace("'","\\'")', @product.SellingPrice, @product.TaxRate)"
+                                data-category="@product.CategoryId"
+                                data-barcode="@product.Barcode"
+                                data-name="@product.Name.ToLower()">
+                            @if (product.ImageUrl != null)
+                            {
+                                <img src="@product.ImageUrl" alt="@product.Name"
+                                     style="width:60px;height:60px;object-fit:cover;border-radius:8px" />
+                            }
+                            else
+                            {
+                                <div class="rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center"
+                                     style="width:50px;height:50px;font-size:1.2rem">
+                                    <i class="bi bi-box-seam"></i>
+                                </div>
+                            }
+                            <div class="fw-semibold" style="font-size:.85rem">@product.Name</div>
+                            <div class="product-price">@product.SellingPrice.ToString("N2")</div>
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Order Panel -->
+        <div class="pos-right border-start ps-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="fw-bold mb-0">
+                    <i class="bi bi-cart3 me-2 text-success"></i>
+                    Order <span id="orderNumber" class="text-muted fw-normal fs-6">#New</span>
+                </h6>
+                <button class="btn btn-link btn-sm text-danger p-0" onclick="clearOrder()">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+
+            <!-- Order Items List -->
+            <div class="order-items" id="orderItems">
+                <p class="text-center text-muted small py-4" id="emptyCart">
+                    <i class="bi bi-cart-x d-block fs-2 mb-2"></i>
+                    No items added yet
+                </p>
+            </div>
+
+            <hr class="my-2" />
+
+            <!-- Order Totals -->
+            <div class="small">
+                <div class="d-flex justify-content-between py-1">
+                    <span class="text-muted">Subtotal</span>
+                    <span id="subtotal">0.00</span>
+                </div>
+                <div class="d-flex justify-content-between py-1" id="discountRow" style="display:none!important">
+                    <span class="text-danger">Discount</span>
+                    <span id="discount" class="text-danger">-0.00</span>
+                </div>
+                <div class="d-flex justify-content-between py-1">
+                    <span class="text-muted">VAT (15%)</span>
+                    <span id="tax">0.00</span>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between py-2 border-top mt-1">
+                <span class="fw-bold fs-5">Total</span>
+                <span class="fw-bold fs-5 text-success" id="total">0.00 SAR</span>
+            </div>
+
+            <!-- Coupon -->
+            <div class="input-group input-group-sm mb-3">
+                <input type="text" class="form-control" id="couponCode" placeholder="Coupon code" />
+                <button class="btn btn-outline-secondary" onclick="applyCoupon()">Apply</button>
+            </div>
+
+            <!-- Payment Buttons -->
+            <div class="d-grid gap-2">
+                <button class="btn btn-success btn-lg fw-bold py-3" onclick="processPayment('Cash')">
+                    <i class="bi bi-cash-coin me-2"></i>Cash Payment
+                </button>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <button class="btn btn-outline-primary w-100" onclick="processPayment('Card')">
+                            <i class="bi bi-credit-card me-1"></i>Card
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-outline-secondary w-100" onclick="showSplitPayment()">
+                            <i class="bi bi-distribute-vertical me-1"></i>Split
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cash Payment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="mb-3">
+                    <div class="text-muted">Total Amount</div>
+                    <div class="fs-2 fw-bold text-success" id="payTotal">0.00 SAR</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Cash Tendered</label>
+                    <input type="number" class="form-control form-control-lg text-center" id="cashTendered"
+                           step="0.01" min="0" placeholder="0.00" />
+                </div>
+                <div class="mb-3">
+                    <div class="text-muted">Change</div>
+                    <div class="fs-3 fw-bold" id="changeAmount">0.00 SAR</div>
+                </div>
+                <!-- Numpad -->
+                <div class="row g-1">
+                    @foreach (var n in new[] { "7","8","9","4","5","6","1","2","3","00","0","." })
+                    {
+                        <div class="col-4">
+                            <button class="btn btn-outline-secondary w-100 numpad-btn"
+                                    onclick="numpadInput('@n')">@n</button>
+                        </div>
+                    }
+                    <div class="col-12">
+                        <button class="btn btn-outline-danger w-100 numpad-btn" onclick="numpadClear()">
+                            <i class="bi bi-backspace"></i> Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success btn-lg flex-grow-1" onclick="confirmPayment()">
+                    <i class="bi bi-check-lg me-2"></i>Confirm Payment
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modifier Modal -->
+<div class="modal fade" id="modifierModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modifierProductName">Select Options</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modifierGroups">
+                <!-- Dynamically loaded modifier groups -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="confirmModifiers()">Add to Order</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+// POS State
+let orderItems = [];
+let orderType = '@Model.SelectedOrderType';
+let selectedTable = null;
+let selectedCustomer = null;
+let couponData = null;
+let pendingProduct = null;
+
+// --- Add item to order ---
+function addToOrder(productId, name, price, taxRate, variantName = null, modifiers = []) {
+    const existing = orderItems.find(i => i.productId === productId && JSON.stringify(i.modifiers) === JSON.stringify(modifiers));
+    if (existing) {
+        existing.qty++;
+    } else {
+        orderItems.push({
+            productId, name, price: parseFloat(price), taxRate: parseFloat(taxRate),
+            qty: 1, variantName, modifiers, notes: ''
+        });
+    }
+    renderOrder();
+}
+
+// --- Render order panel ---
+function renderOrder() {
+    const container = document.getElementById('orderItems');
+    const emptyMsg = document.getElementById('emptyCart');
+    if (orderItems.length === 0) {
+        container.innerHTML = '';
+        emptyMsg.style.display = '';
+        container.appendChild(emptyMsg);
+        updateTotals(0, 0, 0);
+        return;
+    }
+    emptyMsg.style.display = 'none';
+    container.innerHTML = orderItems.map((item, idx) => `
+        <div class="pos-order-item" data-idx="${idx}">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                    <div class="fw-semibold" style="font-size:.9rem">${item.name}</div>
+                    ${item.variantName ? `<small class="text-muted">${item.variantName}</small>` : ''}
+                    ${item.modifiers.map(m => `<small class="text-muted d-block">+ ${m.name} (${m.price.toFixed(2)})</small>`).join('')}
+                </div>
+                <button class="btn btn-link btn-sm text-danger p-0" onclick="removeItem(${idx})">
+                    <i class="bi bi-trash-fill"></i>
+                </button>
+            </div>
+            <div class="d-flex align-items-center justify-content-between mt-1">
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-outline-secondary btn-sm px-2 py-0" onclick="changeQty(${idx}, -1)">−</button>
+                    <span class="fw-bold">${item.qty}</span>
+                    <button class="btn btn-outline-secondary btn-sm px-2 py-0" onclick="changeQty(${idx}, 1)">+</button>
+                </div>
+                <div class="fw-semibold text-success">${((item.price + item.modifiers.reduce((a,m)=>a+m.price,0)) * item.qty).toFixed(2)}</div>
+            </div>
+        </div>`).join('');
+    recalculate();
+}
+
+function changeQty(idx, delta) {
+    orderItems[idx].qty = Math.max(1, orderItems[idx].qty + delta);
+    renderOrder();
+}
+
+function removeItem(idx) {
+    orderItems.splice(idx, 1);
+    renderOrder();
+}
+
+function clearOrder() {
+    if (orderItems.length > 0 && !confirm('Clear all items?')) return;
+    orderItems = [];
+    couponData = null;
+    renderOrder();
+}
+
+// --- Recalculate totals ---
+function recalculate() {
+    let subtotal = 0, tax = 0;
+    for (const item of orderItems) {
+        const linePrice = (item.price + item.modifiers.reduce((a,m) => a + m.price, 0)) * item.qty;
+        subtotal += linePrice;
+        tax += linePrice * (item.taxRate / 100);
+    }
+    const discount = couponData ? couponData.amount : 0;
+    const total = subtotal - discount + tax;
+    updateTotals(subtotal, tax, total, discount);
+}
+
+function updateTotals(subtotal, tax, total, discount = 0) {
+    document.getElementById('subtotal').textContent = subtotal.toFixed(2);
+    document.getElementById('tax').textContent = tax.toFixed(2);
+    document.getElementById('total').textContent = total.toFixed(2) + ' SAR';
+    const discRow = document.getElementById('discountRow');
+    if (discount > 0) {
+        discRow.style.display = '';
+        document.getElementById('discount').textContent = '-' + discount.toFixed(2);
+    } else {
+        discRow.style.display = 'none';
+    }
+}
+
+// --- Category filter ---
+function filterCategory(catId, btn) {
+    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#productGrid .pos-product-btn').forEach(el => {
+        el.style.display = (!catId || el.dataset.category === catId) ? '' : 'none';
+    });
+}
+
+// --- Product search ---
+document.getElementById('productSearch').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('#productGrid .pos-product-btn').forEach(el => {
+        el.style.display = (!q || el.dataset.name.includes(q) || (el.dataset.barcode && el.dataset.barcode.includes(q))) ? '' : 'none';
+    });
+});
+
+// Alt+S shortcut for search
+document.addEventListener('keydown', e => {
+    if (e.altKey && e.key === 's') { e.preventDefault(); document.getElementById('productSearch').focus(); }
+});
+
+// Barcode scanner
+window.addEventListener('barcodeScanned', e => {
+    const barcode = e.detail.barcode;
+    const el = document.querySelector(`[data-barcode="${barcode}"]`);
+    if (el) el.click();
+    else showToast(`Product not found: ${barcode}`, 'warning');
+});
+
+// --- Payment ---
+let paymentMethod = 'Cash';
+function processPayment(method) {
+    if (orderItems.length === 0) { showToast('Add items before payment', 'warning'); return; }
+    paymentMethod = method;
+    const total = parseFloat(document.getElementById('total').textContent);
+    document.getElementById('payTotal').textContent = total.toFixed(2) + ' SAR';
+    document.getElementById('cashTendered').value = '';
+    document.getElementById('changeAmount').textContent = '0.00 SAR';
+    new bootstrap.Modal(document.getElementById('paymentModal')).show();
+}
+
+function numpadInput(val) {
+    const input = document.getElementById('cashTendered');
+    input.value = (input.value + val).replace(/^0+(\d)/, '$1');
+    updateChange();
+}
+function numpadClear() { document.getElementById('cashTendered').value = ''; updateChange(); }
+function updateChange() {
+    const total = parseFloat(document.getElementById('payTotal').textContent);
+    const tendered = parseFloat(document.getElementById('cashTendered').value) || 0;
+    document.getElementById('changeAmount').textContent = Math.max(0, tendered - total).toFixed(2) + ' SAR';
+}
+document.getElementById('cashTendered').addEventListener('input', updateChange);
+
+async function confirmPayment() {
+    if (orderItems.length === 0) return;
+    const total = parseFloat(document.getElementById('total').textContent);
+    const tendered = parseFloat(document.getElementById('cashTendered').value) || total;
+
+    const payload = {
+        branchId: '@Model.BranchId',
+        orderType: document.querySelector('input[name=orderType]:checked')?.value || 'DineIn',
+        tableId: document.getElementById('tableSelect').value || null,
+        notes: null,
+        numberOfGuests: 1,
+        items: orderItems.map(i => ({ productId: i.productId, quantity: i.qty, notes: i.notes, modifiers: i.modifiers.map(m => ({ modifierId: m.id })) })),
+        couponCode: couponData?.code || null
+    };
+
+    try {
+        const createResp = await fetch('/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            body: JSON.stringify(payload)
+        });
+        if (!createResp.ok) { showToast('Failed to create order', 'danger'); return; }
+        const { id: orderId } = await createResp.json();
+
+        const payResp = await fetch(`/api/orders/${orderId}/payment`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            body: JSON.stringify({ payments: [{ method: paymentMethod, amount: tendered }] })
+        });
+        if (!payResp.ok) { showToast('Payment failed', 'danger'); return; }
+        const { invoiceId } = await payResp.json();
+
+        bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide();
+        showToast('Payment successful! Printing receipt...', 'success');
+        clearOrder();
+
+        // Open receipt
+        window.open(`/api/invoices/${invoiceId}/receipt`, '_blank');
+    } catch (err) {
+        showToast('Network error: ' + err.message, 'danger');
+    }
+}
+
+async function applyCoupon() {
+    const code = document.getElementById('couponCode').value.trim();
+    if (!code) return;
+    const resp = await fetch(`/api/coupons/validate?code=${encodeURIComponent(code)}`);
+    if (resp.ok) {
+        couponData = await resp.json();
+        showToast(`Coupon applied: -${couponData.amount.toFixed(2)} SAR`, 'success');
+        recalculate();
+    } else {
+        showToast('Invalid coupon code', 'danger');
+    }
+}
+
+// Order type change
+document.querySelectorAll('input[name=orderType]').forEach(r => r.addEventListener('change', () => {
+    orderType = r.value;
+    document.getElementById('tableSelect').closest('.w-auto').style.display = r.value === 'DineIn' ? '' : 'none';
+}));
+
+// Init SignalR
+connectSignalR('@Model.BranchId');
+</script>
+}

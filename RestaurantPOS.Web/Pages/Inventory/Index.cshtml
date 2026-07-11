@@ -1,0 +1,114 @@
+@page
+@model RestaurantPOS.Web.Pages.Inventory.IndexModel
+@{
+    ViewData["Title"] = "Inventory";
+    ViewData["ActivePage"] = "Inventory";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0"><i class="bi bi-boxes me-2"></i>@Localizer["Inventory"]</h4>
+    <div class="d-flex gap-2">
+        <a asp-page="/Inventory/Adjustment" class="btn btn-outline-primary">
+            <i class="bi bi-sliders me-1"></i>@Localizer["Adjustment"]
+        </a>
+        <a asp-page="/Inventory/StockCount" class="btn btn-outline-secondary">
+            <i class="bi bi-clipboard-check me-1"></i>@Localizer["Stock Count"]
+        </a>
+    </div>
+</div>
+
+<!-- Low Stock Alert -->
+@if (Model.LowStockCount > 0)
+{
+    <div class="alert alert-warning d-flex align-items-center mb-4">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <strong>@Model.LowStockCount</strong>&nbsp;@Localizer["products are running low on stock!"]
+    </div>
+}
+
+<!-- Filters -->
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2">
+            <div class="col-md-4">
+                <input type="text" name="search" value="@Model.Search"
+                       class="form-control" placeholder="@Localizer["Search product..."]" />
+            </div>
+            <div class="col-md-3">
+                <select name="warehouseId" class="form-select">
+                    <option value="">@Localizer["All Warehouses"]</option>
+                    @foreach (var w in Model.Warehouses)
+                    {
+                        <option value="@w.Id" selected="@(Model.WarehouseId == w.Id)">@w.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="filter" class="form-select">
+                    <option value="">@Localizer["All Items"]</option>
+                    <option value="low" selected="@(Model.Filter == "low")">@Localizer["Low Stock"]</option>
+                    <option value="out" selected="@(Model.Filter == "out")">@Localizer["Out of Stock"]</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-search"></i></button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>@Localizer["Product"]</th>
+                        <th>@Localizer["Warehouse"]</th>
+                        <th class="text-center">@Localizer["On Hand"]</th>
+                        <th class="text-center">@Localizer["Min Stock"]</th>
+                        <th class="text-center">@Localizer["Reorder Level"]</th>
+                        <th>@Localizer["Status"]</th>
+                        <th>@Localizer["Last Updated"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        var statusColor = item.QuantityOnHand <= 0 ? "danger" : item.QuantityOnHand <= item.MinStockLevel ? "warning" : "success";
+                        var statusText = item.QuantityOnHand <= 0 ? "Out of Stock" : item.QuantityOnHand <= item.MinStockLevel ? "Low Stock" : "In Stock";
+                        <tr class="@(item.QuantityOnHand <= 0 ? "table-danger" : item.QuantityOnHand <= item.MinStockLevel ? "table-warning" : "")">
+                            <td class="fw-semibold">@item.ProductName</td>
+                            <td>@item.WarehouseName</td>
+                            <td class="text-center fw-bold">@item.QuantityOnHand.ToString("N2") @item.UnitName</td>
+                            <td class="text-center text-muted">@item.MinStockLevel.ToString("N2")</td>
+                            <td class="text-center text-muted">@item.ReorderLevel.ToString("N2")</td>
+                            <td><span class="badge bg-@statusColor">@Localizer[statusText]</span></td>
+                            <td class="text-muted small">@item.UpdatedDate.ToString("dd MMM HH:mm")</td>
+                        </tr>
+                    }
+                    @if (!Model.Items.Any())
+                    {
+                        <tr><td colspan="7" class="text-center text-muted py-4">@Localizer["No inventory records found"]</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @if (Model.TotalPages > 1)
+    {
+        <div class="card-footer">
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.Page ? "active" : "")">
+                            <a class="page-link" asp-page="/Inventory/Index" asp-route-page="@i"
+                               asp-route-search="@Model.Search" asp-route-warehouseId="@Model.WarehouseId">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    }
+</div>

@@ -1,0 +1,12 @@
+/home/runner/work/Foody/Foody/RestaurantPOS.Shared/bin/Debug/net8.0/RestaurantPOS.Shared.deps.json
+/home/runner/work/Foody/Foody/RestaurantPOS.Shared/bin/Debug/net8.0/RestaurantPOS.Shared.dll
+/home/runner/work/Foody/Foody/RestaurantPOS.Shared/bin/Debug/net8.0/RestaurantPOS.Shared.pdb
+/home/runner/work/Foody/Foody/RestaurantPOS.Shared/obj/Debug/net8.0/RestaurantPOS.Shared.GeneratedMSBuildEditorConfig.editorconfig
+/home/runner/work/Foody/Foody/RestaurantPOS.Shared/obj/Debug/net8.0/RestaurantPOS.Shared.AssemblyInfoInputs.cache
+/home/runner/work/Foody/Foody/RestaurantPOS.Shared/obj/Debug/net8.0/RestaurantPOS.Shared.AssemblyInfo.cs
+/home/runner/work/Foody/Foody/RestaurantPOS.Shared/obj/Debug/net8.0/RestaurantPOS.Shared.csproj.CoreCompileInputs.cache
+/home/runner/work/Foody/Foody/RestaurantPOS.Shared/obj/Debug/net8.0/RestaurantPOS.Shared.sourcelink.json
+/home/runner/work/Foody/Foody/RestaurantPOS.Shared/obj/Debug/net8.0/RestaurantPOS.Shared.dll
+/home/runner/work/Foody/Foody/RestaurantPOS.Shared/obj/Debug/net8.0/refint/RestaurantPOS.Shared.dll
+/home/runner/work/Foody/Foody/RestaurantPOS.Shared/obj/Debug/net8.0/RestaurantPOS.Shared.pdb
+/home/runner/work/Foody/Foody/RestaurantPOS.Shared/obj/Debug/net8.0/ref/RestaurantPOS.Shared.dll
