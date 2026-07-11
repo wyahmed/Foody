@@ -1,0 +1,9 @@
+@page
+@model RestaurantPOS.Web.Pages.Account.LogoutModel
+@{
+    Layout = null;
+}
+<form method="post">
+    @Html.AntiForgeryToken()
+    <button type="submit">Logout</button>
+</form>

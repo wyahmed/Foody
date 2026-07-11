@@ -1,0 +1,191 @@
+/* =======================================================
+   RestaurantPOS - Custom POS Stylesheet
+   Foodics-inspired design with Bootstrap 5 base
+   ======================================================= */
+
+:root {
+    --pos-primary: #2d6a4f;
+    --pos-secondary: #40916c;
+    --pos-accent: #52b788;
+    --pos-sidebar-width: 240px;
+    --pos-navbar-height: 56px;
+    --pos-card-radius: 12px;
+    --pos-shadow: 0 2px 12px rgba(0,0,0,.08);
+}
+
+[data-bs-theme="dark"] {
+    --pos-sidebar-bg: #1a1d21;
+    --pos-navbar-bg: #212529;
+    --bs-body-bg: #121416;
+    --bs-card-bg: #1e2227;
+}
+
+/* ---- Navbar ---- */
+.pos-navbar {
+    background: var(--pos-primary) !important;
+    height: var(--pos-navbar-height);
+}
+
+/* ---- Sidebar ---- */
+.pos-sidebar {
+    width: var(--pos-sidebar-width);
+    min-height: calc(100vh - var(--pos-navbar-height));
+    background: var(--pos-sidebar-bg, #f8f9fa);
+    border-inline-end: 1px solid rgba(0,0,0,.08);
+    transition: width .2s ease;
+    flex-shrink: 0;
+}
+
+.pos-sidebar .nav-link {
+    font-size: .875rem;
+    font-weight: 500;
+    transition: background .15s, color .15s;
+}
+
+.pos-sidebar .nav-link.active {
+    background: var(--pos-primary);
+    color: #fff !important;
+}
+
+.pos-sidebar .nav-link:hover:not(.active) {
+    background: rgba(45,106,79,.1);
+    color: var(--pos-primary) !important;
+}
+
+/* ---- Cards ---- */
+.pos-card {
+    border: none;
+    border-radius: var(--pos-card-radius);
+    box-shadow: var(--pos-shadow);
+    transition: transform .15s, box-shadow .15s;
+}
+
+.pos-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+}
+
+/* ---- Stat Cards ---- */
+.stat-card {
+    border-radius: var(--pos-card-radius);
+    border: none;
+    box-shadow: var(--pos-shadow);
+}
+
+.stat-card .stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+/* ---- POS Screen ---- */
+.pos-product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.pos-product-btn {
+    border: 1.5px solid #e0e0e0;
+    border-radius: var(--pos-card-radius);
+    background: #fff;
+    padding: 16px 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: all .15s;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.pos-product-btn:hover,
+.pos-product-btn:active {
+    border-color: var(--pos-primary);
+    background: rgba(45,106,79,.06);
+    transform: scale(.98);
+}
+
+.pos-product-btn .product-price {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--pos-primary);
+}
+
+.pos-order-panel {
+    border-inline-start: 1px solid rgba(0,0,0,.08);
+    min-width: 340px;
+    max-width: 400px;
+}
+
+.pos-order-item {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,.06);
+}
+
+/* ---- Kitchen Display ---- */
+.kds-card {
+    border-radius: var(--pos-card-radius);
+    box-shadow: var(--pos-shadow);
+    border: none;
+    min-height: 180px;
+}
+
+.kds-card.kds-new { border-top: 4px solid #dc3545; }
+.kds-card.kds-preparing { border-top: 4px solid #fd7e14; }
+.kds-card.kds-ready { border-top: 4px solid #198754; }
+
+/* ---- Tables ---- */
+.table-map {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+}
+
+.table-card {
+    border-radius: 10px;
+    border: 2px solid #dee2e6;
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all .15s;
+    font-weight: 600;
+}
+
+.table-card.available { background: #d1fae5; border-color: #34d399; color: #065f46; }
+.table-card.occupied { background: #fee2e2; border-color: #f87171; color: #7f1d1d; }
+.table-card.reserved { background: #fef3c7; border-color: #fbbf24; color: #78350f; }
+
+/* ---- Buttons ---- */
+.btn-primary { background: var(--pos-primary) !important; border-color: var(--pos-primary) !important; }
+.btn-primary:hover { background: var(--pos-secondary) !important; }
+
+/* ---- Responsive ---- */
+@media (max-width: 991px) {
+    .pos-sidebar { display: none !important; }
+    .pos-order-panel { min-width: 100%; max-width: 100%; }
+}
+
+/* ---- Dark Mode ---- */
+[data-bs-theme="dark"] .pos-sidebar {
+    background: #1a1d21;
+    border-color: rgba(255,255,255,.08);
+}
+
+[data-bs-theme="dark"] .pos-product-btn {
+    background: #2a2d30;
+    border-color: #3a3d40;
+    color: #e9ecef;
+}
+
+[data-bs-theme="dark"] .table-card.available { background: #065f46; border-color: #059669; color: #d1fae5; }
+[data-bs-theme="dark"] .table-card.occupied { background: #7f1d1d; border-color: #b91c1c; color: #fee2e2; }

@@ -1,0 +1,190 @@
+@page
+@model RestaurantPOS.Web.Pages.Products.EditModel
+@{
+    ViewData["Title"] = Model.IsNew ? "Add Product" : "Edit Product";
+    ViewData["ActivePage"] = "Products";
+}
+
+<div class="d-flex align-items-center mb-4 gap-3">
+    <a asp-page="/Products/Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <h4 class="mb-0">@(Model.IsNew ? Localizer["Add Product"] : Localizer["Edit Product"])</h4>
+</div>
+
+@if (!ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <div>@error.ErrorMessage</div>
+        }
+    </div>
+}
+
+<form method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Product.Id" />
+    <div class="row g-4">
+        <!-- Main Info -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header fw-semibold">@Localizer["Basic Information"]</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">@Localizer["Name (EN)"] *</label>
+                            <input asp-for="Product.Name" class="form-control" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">@Localizer["Name (AR)"]</label>
+                            <input asp-for="Product.NameAr" class="form-control" dir="rtl" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">@Localizer["Category"] *</label>
+                            <select asp-for="Product.CategoryId" class="form-select" required>
+                                <option value="">@Localizer["Select category..."]</option>
+                                @foreach (var cat in Model.Categories)
+                                {
+                                    <option value="@cat.Id" selected="@(Model.Product.CategoryId == cat.Id)">@cat.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">@Localizer["Brand"]</label>
+                            <select asp-for="Product.BrandId" class="form-select">
+                                <option value="">@Localizer["No brand"]</option>
+                                @foreach (var b in Model.Brands)
+                                {
+                                    <option value="@b.Id">@b.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">@Localizer["Description"]</label>
+                            <textarea asp-for="Product.Description" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header fw-semibold">@Localizer["Pricing"]</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">@Localizer["Selling Price"] *</label>
+                            <div class="input-group">
+                                <input asp-for="Product.SellingPrice" type="number" class="form-control" step="0.01" min="0" required />
+                                <span class="input-group-text">@Localizer["SAR"]</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">@Localizer["Cost Price"]</label>
+                            <div class="input-group">
+                                <input asp-for="Product.CostPrice" type="number" class="form-control" step="0.01" min="0" />
+                                <span class="input-group-text">@Localizer["SAR"]</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">@Localizer["Tax Rate"]</label>
+                            <select asp-for="Product.TaxRateId" class="form-select">
+                                <option value="">@Localizer["No tax"]</option>
+                                @foreach (var t in Model.TaxRates)
+                                {
+                                    <option value="@t.Id">@t.Name (@t.Rate%)</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header fw-semibold">@Localizer["Identifiers"]</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">@Localizer["SKU"]</label>
+                            <input asp-for="Product.SKU" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">@Localizer["Barcode"]</label>
+                            <input asp-for="Product.Barcode" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">@Localizer["Unit"]</label>
+                            <select asp-for="Product.UnitId" class="form-select">
+                                <option value="">@Localizer["No unit"]</option>
+                                @foreach (var u in Model.Units)
+                                {
+                                    <option value="@u.Id">@u.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Side Panel -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header fw-semibold">@Localizer["Status"]</div>
+                <div class="card-body">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" asp-for="Product.IsActive" />
+                        <label class="form-check-label" asp-for="Product.IsActive">@Localizer["Active"]</label>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" asp-for="Product.TrackInventory" />
+                        <label class="form-check-label" asp-for="Product.TrackInventory">@Localizer["Track Inventory"]</label>
+                    </div>
+                    <div class="form-check form-switch">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header fw-semibold">@Localizer["Inventory"]</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["Min Stock Level"]</label>
+                        <input asp-for="Product.MinStockLevel" type="number" class="form-control" step="0.01" min="0" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["Max Stock Level"]</label>
+                        <input asp-for="Product.MaxStockLevel" type="number" class="form-control" step="0.01" min="0" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header fw-semibold">@Localizer["Image"]</div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.Product.ImageUrl))
+                    {
+                        <img src="@Model.Product.ImageUrl" class="img-fluid rounded mb-3" alt="Product image" />
+                    }
+                    <input type="file" name="ImageFile" class="form-control" accept="image/*" />
+                    <small class="text-muted">@Localizer["JPG, PNG up to 2MB"]</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save me-1"></i>@Localizer["Save Product"]
+                </button>
+                <a asp-page="/Products/Index" class="btn btn-outline-secondary">@Localizer["Cancel"]</a>
+                @if (!Model.IsNew)
+                {
+                    <button type="submit" asp-page-handler="Delete" class="btn btn-outline-danger ms-auto"
+                            onclick="return confirm('@Localizer["Are you sure you want to delete this product?"]')">
+                        <i class="bi bi-trash me-1"></i>@Localizer["Delete"]
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</form>

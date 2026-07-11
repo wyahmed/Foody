@@ -1,0 +1,124 @@
+@page
+@model RestaurantPOS.Web.Pages.Kitchen.IndexModel
+@{
+    ViewData["Title"] = "Kitchen Display";
+    ViewData["ActivePage"] = "Kitchen";
+    Layout = "_Layout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0"><i class="bi bi-fire me-2 text-danger"></i>@Localizer["Kitchen Display"]</h4>
+    <div class="d-flex gap-2 align-items-center">
+        <span class="badge bg-warning text-dark fs-6" id="pending-count">@Model.PendingCount @Localizer["Pending"]</span>
+        <span class="badge bg-info fs-6" id="preparing-count">@Model.PreparingCount @Localizer["Preparing"]</span>
+        <button class="btn btn-outline-secondary btn-sm" onclick="location.reload()">
+            <i class="bi bi-arrow-clockwise"></i> @Localizer["Refresh"]
+        </button>
+    </div>
+</div>
+
+<div class="row g-3" id="kds-board">
+    @foreach (var ko in Model.KitchenOrders)
+    {
+        <div class="col-sm-6 col-lg-4 col-xl-3" id="ko-@ko.Id">
+            <div class="card h-100 border-@(ko.Status == "Preparing" ? "warning" : "secondary") border-2">
+                <div class="card-header d-flex justify-content-between align-items-center
+                    bg-@(ko.Status == "Preparing" ? "warning" : "light")">
+                    <div>
+                        <strong>#@ko.OrderNumber</strong>
+                        <span class="badge bg-@(ko.OrderType == "DineIn" ? "primary" : ko.OrderType == "Delivery" ? "warning" : "info") ms-2">
+                            @Localizer[ko.OrderType]
+                        </span>
+                    </div>
+                    <small class="text-muted" title="@ko.CreatedDate.ToString("HH:mm:ss")">
+                        <i class="bi bi-clock me-1"></i><span class="ko-timer" data-started="@((DateTime.UtcNow - ko.CreatedDate).TotalSeconds)">
+                            @((int)(DateTime.UtcNow - ko.CreatedDate).TotalMinutes)m
+                        </span>
+                    </small>
+                </div>
+                <div class="card-body p-2">
+                    @if (!string.IsNullOrEmpty(ko.TableName))
+                    {
+                        <div class="mb-2 text-muted small"><i class="bi bi-grid me-1"></i>@Localizer["Table"]: <strong>@ko.TableName</strong></div>
+                    }
+                    <ul class="list-unstyled mb-0">
+                        @foreach (var item in ko.Items)
+                        {
+                            <li class="py-1 border-bottom">
+                                <div class="d-flex justify-content-between">
+                                    <span class="fw-semibold">@item.Quantity× @item.ProductName</span>
+                                    @if (item.IsCompleted)
+                                    {
+                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                    }
+                                </div>
+                                @if (!string.IsNullOrEmpty(item.Notes))
+                                {
+                                    <div class="text-danger small">⚠ @item.Notes</div>
+                                }
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <div class="card-footer p-2 d-flex gap-2">
+                    @if (ko.Status == "Pending")
+                    {
+                        <form method="post" asp-page-handler="StartPreparing" class="w-100">
+                            <input type="hidden" name="id" value="@ko.Id" />
+                            <button type="submit" class="btn btn-warning w-100">
+                                <i class="bi bi-play-fill me-1"></i>@Localizer["Start Preparing"]
+                            </button>
+                        </form>
+                    }
+                    else if (ko.Status == "Preparing")
+                    {
+                        <form method="post" asp-page-handler="MarkReady" class="w-100">
+                            <input type="hidden" name="id" value="@ko.Id" />
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="bi bi-check-lg me-1"></i>@Localizer["Mark Ready"]
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span class="text-success w-100 text-center py-1"><i class="bi bi-check-circle-fill me-1"></i>@Localizer["Ready"]</span>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    @if (!Model.KitchenOrders.Any())
+    {
+        <div class="col-12">
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-check2-all display-3 d-block mb-3 text-success"></i>
+                <h5>@Localizer["No pending orders — Kitchen is clear!"]</h5>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+    // Auto-refresh every 30 seconds
+    setTimeout(() => location.reload(), 30000);
+
+    // Timer display
+    setInterval(() => {
+        document.querySelectorAll('.ko-timer').forEach(el => {
+            const started = parseFloat(el.dataset.started) + 1;
+            el.dataset.started = started;
+            const mins = Math.floor(started / 60);
+            el.textContent = mins + 'm';
+            if (mins >= 15) el.closest('.card').classList.add('border-danger');
+            else if (mins >= 8) el.closest('.card').classList.add('border-warning');
+        });
+    }, 1000);
+
+    // SignalR real-time updates
+    if (window.posConnection) {
+        posConnection.on('NewKitchenOrder', () => location.reload());
+        posConnection.on('KitchenOrderUpdated', () => location.reload());
+    }
+</script>
+}

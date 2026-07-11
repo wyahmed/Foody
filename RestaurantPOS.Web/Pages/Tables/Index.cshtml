@@ -1,0 +1,112 @@
+@page
+@model RestaurantPOS.Web.Pages.Tables.IndexModel
+@{
+    ViewData["Title"] = "Tables";
+    ViewData["ActivePage"] = "Tables";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0"><i class="bi bi-grid me-2"></i>@Localizer["Table Map"]</h4>
+    <div class="d-flex gap-2">
+        <span class="badge bg-success px-3 py-2">● @Localizer["Available"]</span>
+        <span class="badge bg-danger px-3 py-2">● @Localizer["Occupied"]</span>
+        <span class="badge bg-warning text-dark px-3 py-2">● @Localizer["Reserved"]</span>
+        <span class="badge bg-secondary px-3 py-2">● @Localizer["Cleaning"]</span>
+    </div>
+</div>
+
+@foreach (var section in Model.Sections)
+{
+    <div class="mb-4">
+        <h6 class="text-muted mb-3">
+            <i class="bi bi-geo-alt me-1"></i>@(section.Name)
+        </h6>
+        <div class="d-flex flex-wrap gap-3">
+            @foreach (var table in section.Tables)
+            {
+                var colorClass = table.Status switch
+                {
+                    "Available" => "success",
+                    "Occupied" => "danger",
+                    "Reserved" => "warning",
+                    "Cleaning" => "secondary",
+                    _ => "light"
+                };
+                <div class="table-card card border-@colorClass border-2 text-center"
+                     style="width:120px;cursor:pointer;"
+                     onclick="openTableModal('@table.Id','@table.Name','@table.Status','@table.Capacity','@table.CurrentOrderId')">
+                    <div class="card-body p-2">
+                        <div class="fw-bold fs-5">@table.Name</div>
+                        <small class="text-muted">@table.Capacity @Localizer["seats"]</small>
+                        <div class="mt-1">
+                            <span class="badge bg-@colorClass">@Localizer[table.Status]</span>
+                        </div>
+                        @if (table.CurrentOrderId.HasValue)
+                        {
+                            <small class="text-muted d-block mt-1">@table.OrderNumber</small>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<!-- Table Action Modal -->
+<div class="modal fade" id="tableModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tableModalTitle">@Localizer["Table Actions"]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="tableModalBody">
+                <div class="d-grid gap-2">
+                    <a id="btn-new-order" href="#" class="btn btn-primary btn-lg">
+                        <i class="bi bi-plus-circle me-2"></i>@Localizer["New Order"]
+                    </a>
+                    <a id="btn-view-order" href="#" class="btn btn-outline-secondary btn-lg d-none">
+                        <i class="bi bi-eye me-2"></i>@Localizer["View Order"]
+                    </a>
+                    <form method="post" asp-page-handler="MarkCleaning" id="form-cleaning" class="d-none">
+                        <input type="hidden" name="tableId" id="clean-table-id" />
+                        <button type="submit" class="btn btn-outline-warning w-100 btn-lg">
+                            <i class="bi bi-stars me-2"></i>@Localizer["Mark for Cleaning"]
+                        </button>
+                    </form>
+                    <form method="post" asp-page-handler="MarkAvailable" id="form-available" class="d-none">
+                        <input type="hidden" name="tableId" id="avail-table-id" />
+                        <button type="submit" class="btn btn-outline-success w-100 btn-lg">
+                            <i class="bi bi-check-circle me-2"></i>@Localizer["Mark Available"]
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function openTableModal(id, name, status, capacity, orderId) {
+    document.getElementById('tableModalTitle').textContent = '@Localizer["Table"]' + ': ' + name + ' (' + capacity + ' @Localizer["seats"]' + ')';
+    const btnNew = document.getElementById('btn-new-order');
+    const btnView = document.getElementById('btn-view-order');
+    const formCleaning = document.getElementById('form-cleaning');
+    const formAvailable = document.getElementById('form-available');
+
+    btnNew.href = '/POS?tableId=' + id;
+    document.getElementById('clean-table-id').value = id;
+    document.getElementById('avail-table-id').value = id;
+
+    btnView.classList.toggle('d-none', !orderId || orderId === '');
+    if (orderId && orderId !== '') {
+        btnView.href = '/Orders/' + orderId;
+    }
+    formCleaning.classList.toggle('d-none', status !== 'Occupied');
+    formAvailable.classList.toggle('d-none', status !== 'Cleaning' && status !== 'Reserved');
+
+    new bootstrap.Modal(document.getElementById('tableModal')).show();
+}
+</script>
+}
