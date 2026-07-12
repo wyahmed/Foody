@@ -8,13 +8,61 @@
 @section Styles {
     <style>
         .pos-screen { height: calc(100vh - 56px - 2rem); display: flex; flex-direction: column; }
-        .pos-categories { overflow-x: auto; white-space: nowrap; }
-        .category-btn { border-radius: 20px; padding: 6px 18px; font-size: .85rem; cursor: pointer; }
-        .category-btn.active { background: var(--pos-primary); color: #fff; border-color: var(--pos-primary); }
         .pos-products { flex: 1; overflow-y: auto; }
         .pos-right { display: flex; flex-direction: column; height: 100%; min-width: 340px; max-width: 380px; }
         .order-items { flex: 1; overflow-y: auto; }
         .numpad-btn { font-size: 1.25rem; font-weight: 600; padding: 12px; }
+
+        /* Vertical Category Sidebar */
+        .pos-cat-sidebar {
+            width: 110px;
+            flex-shrink: 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-bottom: 8px;
+        }
+        .cat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 10px 6px;
+            cursor: pointer;
+            background: #fff;
+            transition: all .15s;
+            text-align: center;
+            min-height: 72px;
+            gap: 4px;
+        }
+        .cat-item:hover { border-color: var(--pos-primary); background: rgba(45,106,79,.06); }
+        .cat-item.active {
+            border-color: var(--pos-primary);
+            background: var(--pos-primary);
+            color: #fff;
+        }
+        .cat-item .cat-icon {
+            font-size: 1.4rem;
+            line-height: 1;
+        }
+        .cat-item .cat-label {
+            font-size: .7rem;
+            font-weight: 600;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+        [data-bs-theme="dark"] .cat-item {
+            background: #2a2d30;
+            border-color: #3a3d40;
+            color: #e9ecef;
+        }
+        [data-bs-theme="dark"] .cat-item.active {
+            background: var(--pos-primary);
+            color: #fff;
+        }
     </style>
 }
 
@@ -59,26 +107,35 @@
     </div>
 
     <div class="d-flex gap-3 flex-grow-1" style="min-height:0">
-        <!-- Left: Products -->
-        <div class="flex-grow-1 d-flex flex-column" style="min-width:0">
-            <!-- Category filter -->
-            <div class="pos-categories mb-3">
-                <div class="d-inline-flex gap-2">
-                    <button class="btn btn-sm category-btn active" onclick="filterCategory(null, this)"
-                            data-category="">
-                        All
-                    </button>
-                    @foreach (var cat in Model.Categories)
-                    {
-                        <button class="btn btn-sm btn-outline-secondary category-btn"
-                                onclick="filterCategory('@cat.Id', this)"
-                                data-category="@cat.Id">
-                            @cat.Name
-                        </button>
-                    }
-                </div>
-            </div>
 
+        <!-- Category Sidebar -->
+        <div class="pos-cat-sidebar">
+            <!-- All -->
+            <div class="cat-item active" onclick="filterCategory(null, this)" data-category="">
+                <span class="cat-icon"><i class="bi bi-grid-3x3-gap-fill"></i></span>
+                <span class="cat-label">All</span>
+            </div>
+            @foreach (var cat in Model.Categories)
+            {
+                <div class="cat-item" onclick="filterCategory('@cat.Id', this)" data-category="@cat.Id"
+                     @(cat.Color != null ? $"style=\"--cat-color:{cat.Color}\"" : "")>
+                    <span class="cat-icon">
+                        @if (!string.IsNullOrEmpty(cat.Icon))
+                        {
+                            <i class="bi @cat.Icon"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-tag-fill"></i>
+                        }
+                    </span>
+                    <span class="cat-label">@cat.Name</span>
+                </div>
+            }
+        </div>
+
+        <!-- Center: Products -->
+        <div class="flex-grow-1 d-flex flex-column" style="min-width:0">
             <!-- Product search bar -->
             <div class="input-group mb-3">
                 <span class="input-group-text"><i class="bi bi-search"></i></span>
@@ -358,9 +415,9 @@ function updateTotals(subtotal, tax, total, discount = 0) {
 }
 
 // --- Category filter ---
-function filterCategory(catId, btn) {
-    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+function filterCategory(catId, el) {
+    document.querySelectorAll('.cat-item').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
     document.querySelectorAll('#productGrid .pos-product-btn').forEach(el => {
         el.style.display = (!catId || el.dataset.category === catId) ? '' : 'none';
     });
