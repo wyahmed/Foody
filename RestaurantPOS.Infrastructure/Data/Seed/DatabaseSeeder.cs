@@ -40,7 +40,10 @@ public static class DatabaseSeeder
                       AND compatibility_level < 140
                 )
                 BEGIN
-                    EXEC(N'ALTER DATABASE ' + QUOTENAME(@databaseName) + N' SET COMPATIBILITY_LEVEL = 140');
+                    DECLARE @sql nvarchar(max) =
+                        N'ALTER DATABASE ' + QUOTENAME(@databaseName) + N' SET COMPATIBILITY_LEVEL = 140';
+
+                    EXEC sp_executesql @sql;
                 END
                 """);
 
