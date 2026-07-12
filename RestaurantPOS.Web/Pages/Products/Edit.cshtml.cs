@@ -8,7 +8,7 @@ using RestaurantPOS.Infrastructure.Data;
 
 namespace RestaurantPOS.Web.Pages.Products;
 
-[Authorize(Roles = "Admin,Manager,Inventory")]
+[Authorize(Roles = "SuperAdmin,Admin,Manager,InventoryManager")]
 public class EditModel : PageModel
 {
     private readonly ApplicationDbContext _db;

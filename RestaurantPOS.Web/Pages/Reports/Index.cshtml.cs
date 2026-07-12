@@ -9,7 +9,7 @@ using RestaurantPOS.Infrastructure.Data;
 
 namespace RestaurantPOS.Web.Pages.Reports;
 
-[Authorize(Roles = "Admin,Manager,Accountant,Auditor")]
+[Authorize(Roles = "SuperAdmin,Admin,Manager,Accountant,Auditor")]
 public class IndexModel : PageModel
 {
     private readonly ApplicationDbContext _db;
