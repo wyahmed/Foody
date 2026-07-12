@@ -22,7 +22,7 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
             ?? "Server=localhost,1433;Database=RestaurantPOS;User Id=sa;******;TrustServerCertificate=True;";
 
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        optionsBuilder.UseSqlServer(connectionString, sql => sql.UseCompatibilityLevel(130));
+        optionsBuilder.UseSqlServer(connectionString, sql => sql.UseCompatibilityLevel(140));
 
         return new ApplicationDbContext(optionsBuilder.Options, null!);
     }

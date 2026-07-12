@@ -27,11 +27,11 @@ public static class DatabaseSeeder
         {
             await context.Database.MigrateAsync();
 
-            // Ensure the database compatibility level is at least 130 (SQL Server 2016)
-            // so EF Core uses SQL Server 2016-compatible query generation and pagination support.
+            // Ensure the database compatibility level is at least 140 (SQL Server 2017)
+            // so EF Core uses SQL Server 2017-compatible query generation and pagination support.
             await context.Database.ExecuteSqlRawAsync(
-                "IF (SELECT compatibility_level FROM sys.databases WHERE name = DB_NAME()) < 130 " +
-                "EXEC(N'ALTER DATABASE [' + DB_NAME() + N'] SET COMPATIBILITY_LEVEL = 130')");
+                "IF (SELECT compatibility_level FROM sys.databases WHERE name = DB_NAME()) < 140 " +
+                "EXEC(N'ALTER DATABASE [' + DB_NAME() + N'] SET COMPATIBILITY_LEVEL = 140')");
 
             await SeedRolesAsync(roleManager, logger);
             var tenantId = await SeedTenantAsync(context, logger);
