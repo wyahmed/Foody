@@ -31,6 +31,7 @@ public static class DependencyInjection
                 configuration.GetConnectionString("DefaultConnection"),
                 sql =>
                 {
+                    sql.UseCompatibilityLevel(130);
                     sql.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName);
                     sql.EnableRetryOnFailure(3);
                     sql.CommandTimeout(30);

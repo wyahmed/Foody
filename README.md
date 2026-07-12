@@ -62,6 +62,7 @@ docker-compose up -d
 
 1. Update `RestaurantPOS.Web/appsettings.json` connection string with your SQL Server password
 2. Apply migrations: `dotnet ef database update --project RestaurantPOS.Infrastructure --startup-project RestaurantPOS.Web`
+   - EF Core is configured to generate SQL Server 2016-compatible SQL (compatibility level 130) for migrations and runtime queries
 3. Run web: `dotnet run --project RestaurantPOS.Web`
 4. Run API: `dotnet run --project RestaurantPOS.API`
 
