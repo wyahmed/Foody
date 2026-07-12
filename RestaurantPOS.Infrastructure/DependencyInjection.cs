@@ -52,6 +52,7 @@ public static class DependencyInjection
             })
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
+        services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, ApplicationUserClaimsPrincipalFactory>();
 
         // --- JWT Authentication ---
         var jwtKey = configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT key not configured.");
