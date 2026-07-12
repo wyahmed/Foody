@@ -125,7 +125,7 @@ public class ComboItemConfiguration : IEntityTypeConfiguration<ComboItem>
     public void Configure(EntityTypeBuilder<ComboItem> builder)
     {
         builder.HasOne(c => c.ComboProduct)
-            .WithMany()
+            .WithMany(p => p.ComboItems)
             .HasForeignKey(c => c.ComboProductId)
             .OnDelete(DeleteBehavior.Restrict);
 

@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "Rv3+Ub3zKHQ=",
+  "dgSpecHash": "1qp7hsqnJyY=",
   "success": true,
   "projectFilePath": "/home/runner/work/Foody/Foody/RestaurantPOS.Shared/RestaurantPOS.Shared.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "/tmp/codeql-scratch-2a3c4e663f780c56/dbs/csharp/working/packages/microsoft.netcore.app.ref/8.0.28/microsoft.netcore.app.ref.8.0.28.nupkg.sha512",
+    "/tmp/codeql-scratch-2a3c4e663f780c56/dbs/csharp/working/packages/microsoft.aspnetcore.app.ref/8.0.28/microsoft.aspnetcore.app.ref.8.0.28.nupkg.sha512"
+  ],
   "logs": []
 }

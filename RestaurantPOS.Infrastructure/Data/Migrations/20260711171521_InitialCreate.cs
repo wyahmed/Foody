@@ -1134,7 +1134,6 @@ namespace RestaurantPOS.Infrastructure.Data.Migrations
                     Quantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     IsOptional = table.Column<bool>(type: "bit", nullable: false),
                     SortOrder = table.Column<int>(type: "int", nullable: false),
-                    ProductId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -1160,11 +1159,6 @@ namespace RestaurantPOS.Infrastructure.Data.Migrations
                         principalTable: "Products",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ComboItems_Products_ProductId1",
-                        column: x => x.ProductId1,
-                        principalTable: "Products",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -2352,11 +2346,6 @@ namespace RestaurantPOS.Infrastructure.Data.Migrations
                 name: "IX_ComboItems_ProductId",
                 table: "ComboItems",
                 column: "ProductId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ComboItems_ProductId1",
-                table: "ComboItems",
-                column: "ProductId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Coupons_CustomerId",

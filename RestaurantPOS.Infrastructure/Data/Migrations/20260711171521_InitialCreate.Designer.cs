@@ -492,9 +492,6 @@ namespace RestaurantPOS.Infrastructure.Data.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ProductId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<decimal>("Quantity")
                         .HasColumnType("decimal(18,2)");
 
@@ -520,8 +517,6 @@ namespace RestaurantPOS.Infrastructure.Data.Migrations
                     b.HasIndex("ComboProductId");
 
                     b.HasIndex("ProductId");
-
-                    b.HasIndex("ProductId1");
 
                     b.ToTable("ComboItems");
                 });
@@ -4385,7 +4380,7 @@ namespace RestaurantPOS.Infrastructure.Data.Migrations
             modelBuilder.Entity("RestaurantPOS.Domain.Entities.ComboItem", b =>
                 {
                     b.HasOne("RestaurantPOS.Domain.Entities.Product", "ComboProduct")
-                        .WithMany()
+                        .WithMany("ComboItems")
                         .HasForeignKey("ComboProductId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -4395,10 +4390,6 @@ namespace RestaurantPOS.Infrastructure.Data.Migrations
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("RestaurantPOS.Domain.Entities.Product", null)
-                        .WithMany("ComboItems")
-                        .HasForeignKey("ProductId1");
 
                     b.Navigation("ComboProduct");
 
