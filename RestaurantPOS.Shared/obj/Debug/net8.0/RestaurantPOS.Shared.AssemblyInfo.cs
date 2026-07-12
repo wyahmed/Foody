@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RestaurantPOS.Shared")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6e14cb84fb6bfa5eb532f8c446c536f9b608c77b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2e86703f492d42aa2938f94b8c1a2d414c3bee5a")]
 [assembly: System.Reflection.AssemblyProductAttribute("RestaurantPOS.Shared")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RestaurantPOS.Shared")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

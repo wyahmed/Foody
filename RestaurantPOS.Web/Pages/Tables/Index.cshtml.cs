@@ -8,7 +8,7 @@ using RestaurantPOS.Infrastructure.Data;
 
 namespace RestaurantPOS.Web.Pages.Tables;
 
-[Authorize(Roles = "Admin,Manager,Cashier")]
+[Authorize(Roles = "SuperAdmin,Admin,Manager,Cashier")]
 public class IndexModel : PageModel
 {
     private readonly ApplicationDbContext _db;

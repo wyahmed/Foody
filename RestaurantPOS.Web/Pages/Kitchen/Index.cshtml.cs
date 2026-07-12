@@ -11,7 +11,7 @@ using RestaurantPOS.Infrastructure.Services;
 
 namespace RestaurantPOS.Web.Pages.Kitchen;
 
-[Authorize(Roles = "Admin,Manager,Kitchen,Cashier")]
+[Authorize(Roles = "SuperAdmin,Admin,Manager,Kitchen,Cashier")]
 public class IndexModel : PageModel
 {
     private readonly ApplicationDbContext _db;
