@@ -31,7 +31,7 @@ public class IndexModel : PageModel
         _settings = await _db.Settings
             .AsNoTracking()
             .Where(s => s.BranchId == branchId)
-            .ToDictionaryAsync(s => s.Key, s => s.Value);
+            .ToDictionaryAsync(s => s.Key, s => s.Value ?? string.Empty);
     }
 
     public async Task<IActionResult> OnPostSaveBusinessAsync(

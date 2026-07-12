@@ -56,14 +56,26 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostMarkCleaningAsync(Guid tableId)
     {
-        var table = await _db.DiningTables.FindAsync(tableId);
+        var branchId = _currentUser.BranchId;
+        if (!branchId.HasValue) return Forbid();
+
+        var table = await _db.DiningTables
+            .Where(t => t.Id == tableId && t.BranchId == branchId.Value)
+            .FirstOrDefaultAsync();
+
         if (table != null) { table.Status = TableStatus.Cleaning; await _db.SaveChangesAsync(); }
         return RedirectToPage();
     }
 
     public async Task<IActionResult> OnPostMarkAvailableAsync(Guid tableId)
     {
-        var table = await _db.DiningTables.FindAsync(tableId);
+        var branchId = _currentUser.BranchId;
+        if (!branchId.HasValue) return Forbid();
+
+        var table = await _db.DiningTables
+            .Where(t => t.Id == tableId && t.BranchId == branchId.Value)
+            .FirstOrDefaultAsync();
+
         if (table != null) { table.Status = TableStatus.Available; await _db.SaveChangesAsync(); }
         return RedirectToPage();
     }

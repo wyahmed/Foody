@@ -61,13 +61,19 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostStartPreparingAsync(Guid id)
     {
-        var ko = await _db.KitchenOrders.FindAsync(id);
+        var branchId = _currentUser.BranchId;
+        if (!branchId.HasValue) return Forbid();
+
+        var ko = await _db.KitchenOrders
+            .Where(x => x.Id == id && x.BranchId == branchId.Value)
+            .FirstOrDefaultAsync();
+
         if (ko == null) return NotFound();
 
         ko.Status = KitchenOrderStatus.Preparing;
         await _db.SaveChangesAsync();
 
-        await _hub.Clients.Group(_currentUser.BranchId.ToString())
+        await _hub.Clients.Group(branchId.Value.ToString())
             .SendAsync("KitchenOrderUpdated", id);
 
         return RedirectToPage();
@@ -75,19 +81,27 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostMarkReadyAsync(Guid id)
     {
-        var ko = await _db.KitchenOrders.FindAsync(id);
+        var branchId = _currentUser.BranchId;
+        if (!branchId.HasValue) return Forbid();
+
+        var ko = await _db.KitchenOrders
+            .Where(x => x.Id == id && x.BranchId == branchId.Value)
+            .FirstOrDefaultAsync();
+
         if (ko == null) return NotFound();
 
         ko.Status = KitchenOrderStatus.Ready;
         ko.CompletedAt = DateTime.UtcNow;
 
         // Update linked order status
-        var order = await _db.Orders.FindAsync(ko.OrderId);
+        var order = await _db.Orders
+            .Where(x => x.Id == ko.OrderId && x.BranchId == branchId.Value)
+            .FirstOrDefaultAsync();
         if (order != null) order.Status = OrderStatus.Ready;
 
         await _db.SaveChangesAsync();
 
-        await _hub.Clients.Group(_currentUser.BranchId.ToString())
+        await _hub.Clients.Group(branchId.Value.ToString())
             .SendAsync("KitchenReady", new { ko.OrderId, KitchenOrderId = id });
 
         return RedirectToPage();

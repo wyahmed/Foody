@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using RestaurantPOS.Domain.Interfaces;
 using RestaurantPOS.Infrastructure.Data;
 
 namespace RestaurantPOS.Web.Pages.Orders;
@@ -10,15 +11,24 @@ namespace RestaurantPOS.Web.Pages.Orders;
 public class DetailModel : PageModel
 {
     private readonly ApplicationDbContext _db;
-    public DetailModel(ApplicationDbContext db) => _db = db;
+    private readonly ICurrentUserService _currentUser;
+
+    public DetailModel(ApplicationDbContext db, ICurrentUserService currentUser)
+    {
+        _db = db;
+        _currentUser = currentUser;
+    }
 
     public OrderDetailDto? Order { get; set; }
 
     public async Task<IActionResult> OnGetAsync(Guid id)
     {
+        var branchId = _currentUser.BranchId;
+        if (!branchId.HasValue) return Forbid();
+
         Order = await _db.Orders
             .AsNoTracking()
-            .Where(o => o.Id == id)
+            .Where(o => o.Id == id && o.BranchId == branchId.Value)
             .Select(o => new OrderDetailDto
             {
                 Id = o.Id,

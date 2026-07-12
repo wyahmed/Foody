@@ -27,7 +27,7 @@ public class IndexModel : PageModel
 
     [Microsoft.AspNetCore.Mvc.BindProperty(SupportsGet = true)] public string? Search { get; set; }
     [Microsoft.AspNetCore.Mvc.BindProperty(SupportsGet = true)] public string? RoleFilter { get; set; }
-    [Microsoft.AspNetCore.Mvc.BindProperty(SupportsGet = true)] public int Page { get; set; } = 1;
+    [Microsoft.AspNetCore.Mvc.BindProperty(SupportsGet = true)] public new int Page { get; set; } = 1;
     public int TotalPages { get; private set; }
 
     private const int PageSize = 25;
