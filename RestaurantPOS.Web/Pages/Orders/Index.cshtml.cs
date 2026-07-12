@@ -26,7 +26,7 @@ public class IndexModel : PageModel
     [BindProperty(SupportsGet = true)] public string? OrderType { get; set; }
     [BindProperty(SupportsGet = true)] public DateTime? DateFrom { get; set; }
     [BindProperty(SupportsGet = true)] public DateTime? DateTo { get; set; }
-    [BindProperty(SupportsGet = true)] public int Page { get; set; } = 1;
+    [BindProperty(SupportsGet = true)] public new int Page { get; set; } = 1;
 
     // ---- view model ----
     public List<OrderRowDto> Orders { get; set; } = new();
@@ -84,7 +84,13 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostCancelAsync(Guid id)
     {
-        var order = await _db.Orders.FindAsync(id);
+        var branchId = _currentUser.BranchId;
+        if (!branchId.HasValue) return Forbid();
+
+        var order = await _db.Orders
+            .Where(o => o.Id == id && o.BranchId == branchId.Value)
+            .FirstOrDefaultAsync();
+
         if (order == null) return NotFound();
         if (order.Status == OrderStatus.Completed || order.Status == OrderStatus.Cancelled)
             return BadRequest();

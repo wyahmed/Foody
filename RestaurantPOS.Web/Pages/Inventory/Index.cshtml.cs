@@ -21,7 +21,7 @@ public class IndexModel : PageModel
     [Microsoft.AspNetCore.Mvc.BindProperty(SupportsGet = true)] public string? Search { get; set; }
     [Microsoft.AspNetCore.Mvc.BindProperty(SupportsGet = true)] public Guid? WarehouseId { get; set; }
     [Microsoft.AspNetCore.Mvc.BindProperty(SupportsGet = true)] public string? Filter { get; set; }
-    [Microsoft.AspNetCore.Mvc.BindProperty(SupportsGet = true)] public int Page { get; set; } = 1;
+    [Microsoft.AspNetCore.Mvc.BindProperty(SupportsGet = true)] public new int Page { get; set; } = 1;
 
     public List<StockItemDto> Items { get; set; } = new();
     public List<WarehouseOptionDto> Warehouses { get; set; } = new();

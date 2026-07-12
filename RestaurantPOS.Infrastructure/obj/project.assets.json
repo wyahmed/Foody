@@ -3532,7 +3532,7 @@
           "Microsoft.Extensions.Logging.Abstractions": "8.0.3",
           "RestaurantPOS.Domain": "1.0.0",
           "RestaurantPOS.Shared": "1.0.0",
-          "Riok.Mapperly": "3.7.0"
+          "Riok.Mapperly": "4.0.0"
         },
         "compile": {
           "bin/placeholder/RestaurantPOS.Application.dll": {}
@@ -10279,7 +10279,7 @@
     ]
   },
   "packageFolders": {
-    "/tmp/codeql-scratch-2a3c4e663f780c56/dbs/csharp/working/packages": {}
+    "/home/runner/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
@@ -10287,7 +10287,7 @@
       "projectUniqueName": "/home/runner/work/Foody/Foody/RestaurantPOS.Infrastructure/RestaurantPOS.Infrastructure.csproj",
       "projectName": "RestaurantPOS.Infrastructure",
       "projectPath": "/home/runner/work/Foody/Foody/RestaurantPOS.Infrastructure/RestaurantPOS.Infrastructure.csproj",
-      "packagesPath": "/tmp/codeql-scratch-2a3c4e663f780c56/dbs/csharp/working/packages",
+      "packagesPath": "/home/runner/.nuget/packages/",
       "outputPath": "/home/runner/work/Foody/Foody/RestaurantPOS.Infrastructure/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
@@ -10401,16 +10401,6 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "downloadDependencies": [
-          {
-            "name": "Microsoft.AspNetCore.App.Ref",
-            "version": "[8.0.28, 8.0.28]"
-          },
-          {
-            "name": "Microsoft.NETCore.App.Ref",
-            "version": "[8.0.28, 8.0.28]"
-          }
-        ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"
@@ -10419,17 +10409,5 @@
         "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.301/PortableRuntimeIdentifierGraph.json"
       }
     }
-  },
-  "logs": [
-    {
-      "code": "NU1603",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "RestaurantPOS.Application depends on Riok.Mapperly (>= 3.7.0) but Riok.Mapperly 3.7.0 was not found. Riok.Mapperly 4.0.0 was resolved instead.",
-      "libraryId": "Riok.Mapperly",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    }
-  ]
+  }
 }

@@ -21,7 +21,7 @@ public class IndexModel : PageModel
     }
 
     [BindProperty(SupportsGet = true)] public string? Search { get; set; }
-    [BindProperty(SupportsGet = true)] public int Page { get; set; } = 1;
+    [BindProperty(SupportsGet = true)] public new int Page { get; set; } = 1;
 
     public List<CustomerRowDto> Customers { get; set; } = new();
     public int TotalCount { get; set; }

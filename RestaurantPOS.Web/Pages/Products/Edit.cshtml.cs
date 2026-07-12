@@ -94,7 +94,7 @@ public class EditModel : PageModel
             {
                 TenantId = tenantId,
                 Name = Product.Name.Trim(),
-                NameAr = Product.NameAr?.Trim(),
+                NameAr = Product.NameAr?.Trim() ?? string.Empty,
                 Description = Product.Description?.Trim(),
                 CategoryId = Product.CategoryId,
                 BrandId = Product.BrandId,
@@ -123,7 +123,7 @@ public class EditModel : PageModel
             if (existing == null) return NotFound();
 
             existing.Name = Product.Name.Trim();
-            existing.NameAr = Product.NameAr?.Trim();
+            existing.NameAr = Product.NameAr?.Trim() ?? string.Empty;
             existing.Description = Product.Description?.Trim();
             existing.CategoryId = Product.CategoryId;
             existing.BrandId = Product.BrandId;

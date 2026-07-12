@@ -22,7 +22,7 @@ public class IndexModel : PageModel
     [BindProperty(SupportsGet = true)] public string? Search { get; set; }
     [BindProperty(SupportsGet = true)] public Guid? CategoryId { get; set; }
     [BindProperty(SupportsGet = true)] public bool? IsActive { get; set; }
-    [BindProperty(SupportsGet = true)] public int Page { get; set; } = 1;
+    [BindProperty(SupportsGet = true)] public new int Page { get; set; } = 1;
 
     public List<ProductRowDto> Products { get; set; } = new();
     public List<CategoryOptionDto> Categories { get; set; } = new();
@@ -82,7 +82,11 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostDeleteAsync(Guid id)
     {
-        var product = await _db.Products.FindAsync(id);
+        var tenantId = _currentUser.TenantId ?? Guid.Empty;
+        var product = await _db.Products
+            .Where(p => p.Id == id && p.TenantId == tenantId)
+            .FirstOrDefaultAsync();
+
         if (product != null) { product.IsDeleted = true; await _db.SaveChangesAsync(); }
         TempData["Success"] = "Product deleted.";
         return RedirectToPage();
