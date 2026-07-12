@@ -1,0 +1,152 @@
+@page "/Categories"
+@model RestaurantPOS.Web.Pages.Categories.IndexModel
+@{
+    ViewData["Title"] = "Categories";
+    ViewData["ActivePage"] = "Categories";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0"><i class="bi bi-tags me-2"></i>@Localizer["Categories"]</h4>
+    <a asp-page="/Categories/Edit" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>@Localizer["Add Category"]
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2">
+            <div class="col-md-4">
+                <input type="text" name="search" value="@Model.Search"
+                       class="form-control" placeholder="@Localizer["Search name or description..."]" />
+            </div>
+            <div class="col-md-3">
+                <select name="parentCategoryId" class="form-select">
+                    <option value="">@Localizer["All Parent Categories"]</option>
+                    @foreach (var parent in Model.ParentCategories)
+                    {
+                        <option value="@parent.Id" selected="@(Model.ParentCategoryId == parent.Id)">@parent.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="isActive" class="form-select">
+                    <option value="">@Localizer["All"]</option>
+                    <option value="true" selected="@(Model.IsActive == true)">@Localizer["Active"]</option>
+                    <option value="false" selected="@(Model.IsActive == false)">@Localizer["Inactive"]</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-search me-1"></i>@Localizer["Search"]
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>@Localizer["Category"]</th>
+                        <th>@Localizer["Parent"]</th>
+                        <th>@Localizer["Details"]</th>
+                        <th>@Localizer["Status"]</th>
+                        <th>@Localizer["Usage"]</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var category in Model.Categories)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="rounded-circle border d-flex align-items-center justify-content-center"
+                                         style="width:38px;height:38px;background:@(string.IsNullOrWhiteSpace(category.Color) ? "#f8f9fa" : category.Color);color:@(string.IsNullOrWhiteSpace(category.Color) ? "#6c757d" : "#fff")">
+                                        <i class="bi @(string.IsNullOrWhiteSpace(category.Icon) ? "bi-tag" : category.Icon)"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">@category.Name</div>
+                                        @if (!string.IsNullOrWhiteSpace(category.NameAr))
+                                        {
+                                            <small class="text-muted" dir="rtl">@category.NameAr</small>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+                            <td>@(category.ParentCategoryName ?? Localizer["Top Level"])</td>
+                            <td>
+                                <div class="small text-muted">@(!string.IsNullOrWhiteSpace(category.Description) ? category.Description : Localizer["No description"])</div>
+                                <div class="small text-muted">@Localizer["Sort"]: @category.SortOrder</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-@(category.IsActive ? "success" : "secondary")">
+                                    @(category.IsActive ? Localizer["Active"] : Localizer["Inactive"])
+                                </span>
+                            </td>
+                            <td>
+                                <div class="small">@Localizer["Products"]: <span class="fw-semibold">@category.ProductCount</span></div>
+                                <div class="small">@Localizer["Subcategories"]: <span class="fw-semibold">@category.SubCategoryCount</span></div>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1 justify-content-end">
+                                    <a asp-page="/Categories/Edit" asp-route-id="@category.Id" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form method="post" asp-page-handler="Delete" asp-route-id="@category.Id"
+                                          onsubmit="return confirm('@Localizer["Are you sure you want to delete this category?"]')">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Categories.Any())
+                    {
+                        <tr><td colspan="6" class="text-center text-muted py-4">@Localizer["No categories found"]</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @if (Model.TotalPages > 1)
+    {
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <small class="text-muted">@string.Format(Localizer["Showing {0}-{1} of {2}"], Model.From, Model.To, Model.TotalCount)</small>
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.Page ? "active" : "")">
+                            <a class="page-link" asp-page="/Categories/Index" asp-route-page="@i"
+                               asp-route-search="@Model.Search" asp-route-isActive="@Model.IsActive"
+                               asp-route-parentCategoryId="@Model.ParentCategoryId">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
