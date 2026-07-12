@@ -1,0 +1,148 @@
+@page "/Employees"
+@model RestaurantPOS.Web.Pages.Employees.IndexModel
+@{
+    ViewData["Title"] = "Employees";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-1">
+            <i class="bi bi-person-badge text-success me-2"></i>Employees
+        </h4>
+        <small class="text-muted">Manage your restaurant staff</small>
+    </div>
+    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#inviteModal">
+        <i class="bi bi-person-plus me-1"></i>Invite Employee
+    </button>
+</div>
+
+<!-- Search -->
+<div class="card pos-card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2">
+            <div class="col-md-5">
+                <input type="text" name="search" value="@Model.Search"
+                       class="form-control" placeholder="Search name, email, code..." />
+            </div>
+            <div class="col-md-3">
+                <select name="role" class="form-select">
+                    <option value="">All Roles</option>
+                    @foreach (var r in Model.Roles)
+                    {
+                        <option value="@r" selected="@(Model.RoleFilter == r)">@r</option>
+                    }
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-outline-secondary">
+                    <i class="bi bi-search me-1"></i>Search
+                </button>
+                @if (!string.IsNullOrEmpty(Model.Search) || !string.IsNullOrEmpty(Model.RoleFilter))
+                {
+                    <a href="/Employees" class="btn btn-link">Clear</a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card pos-card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">Employee</th>
+                        <th>Code</th>
+                        <th>Email</th>
+                        <th>Branch</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Last Login</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var emp in Model.Employees)
+                    {
+                        <tr>
+                            <td class="ps-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center fw-bold"
+                                         style="width:36px;height:36px;font-size:13px;flex-shrink:0">
+                                        @emp.FullName.Substring(0, 1).ToUpperInvariant()
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">@emp.FullName</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-secondary">@(emp.EmployeeCode ?? "—")</span></td>
+                            <td class="text-muted small">@emp.Email</td>
+                            <td class="text-muted small">@(emp.BranchName ?? "All Branches")</td>
+                            <td>
+                                @foreach (var role in emp.Roles)
+                                {
+                                    <span class="badge bg-primary me-1">@role</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge @(emp.IsActive ? "bg-success" : "bg-danger")">
+                                    @(emp.IsActive ? "Active" : "Inactive")
+                                </span>
+                            </td>
+                            <td class="text-muted small">
+                                @(emp.LastLoginDate.HasValue ? emp.LastLoginDate.Value.ToString("dd MMM yyyy HH:mm") : "Never")
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Employees.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-5">
+                                <i class="bi bi-people d-block fs-1 mb-2"></i>
+                                No employees found
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @if (Model.TotalPages > 1)
+    {
+        <div class="card-footer">
+            <nav>
+                <ul class="pagination pagination-sm mb-0 justify-content-center">
+                    @for (int p = 1; p <= Model.TotalPages; p++)
+                    {
+                        <li class="page-item @(p == Model.Page ? "active" : "")">
+                            <a class="page-link" href="?page=@p&search=@Model.Search&role=@Model.RoleFilter">@p</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
+
+<!-- Invite Modal (informational only) -->
+<div class="modal fade" id="inviteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>Invite Employee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Employee accounts are managed through the Account Management system.
+                    Contact your system administrator to add new user accounts.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

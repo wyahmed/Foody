@@ -1,0 +1,194 @@
+@page "/Branches"
+@model RestaurantPOS.Web.Pages.Branches.IndexModel
+@{
+    ViewData["Title"] = "Branches";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-1">
+            <i class="bi bi-building text-success me-2"></i>Branches
+        </h4>
+        <small class="text-muted">Manage your restaurant branches</small>
+    </div>
+    <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addBranchModal">
+        <i class="bi bi-plus-circle me-1"></i>Add Branch
+    </button>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row g-3">
+    @foreach (var branch in Model.Branches)
+    {
+        <div class="col-md-6 col-xl-4">
+            <div class="card pos-card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="rounded-circle bg-success bg-opacity-10 text-success d-flex align-items-center justify-content-center"
+                             style="width:48px;height:48px;font-size:1.3rem;flex-shrink:0">
+                            <i class="bi bi-building"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold">@branch.Name</div>
+                            <div class="text-muted small">@branch.NameAr</div>
+                        </div>
+                        <span class="badge ms-auto @(branch.IsActive ? "bg-success" : "bg-secondary")">
+                            @(branch.IsActive ? "Active" : "Inactive")
+                        </span>
+                    </div>
+                    <div class="small text-muted mb-1">
+                        <i class="bi bi-geo-alt me-1"></i>@(branch.City ?? "—"), @(branch.Address ?? "No address")
+                    </div>
+                    <div class="small text-muted mb-1">
+                        <i class="bi bi-telephone me-1"></i>@(branch.Phone ?? "—")
+                    </div>
+                    <div class="small text-muted">
+                        <i class="bi bi-tag me-1"></i>@branch.BranchType
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent d-flex gap-2">
+                    <button class="btn btn-outline-secondary btn-sm flex-grow-1"
+                            onclick="editBranch('@branch.Id', '@branch.Name.Replace("'", "\\'")', '@(branch.NameAr?.Replace("'", "\\'"))', '@(branch.City ?? "")', '@(branch.Address ?? "")', '@(branch.Phone ?? "")')">
+                        <i class="bi bi-pencil me-1"></i>Edit
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+    @if (!Model.Branches.Any())
+    {
+        <div class="col-12">
+            <div class="card pos-card">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-building fs-1 text-muted d-block mb-3"></i>
+                    <p class="text-muted">No branches found. Add your first branch to get started.</p>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addBranchModal">
+                        <i class="bi bi-plus-circle me-1"></i>Add Branch
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Add Branch Modal -->
+<div class="modal fade" id="addBranchModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Create">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-building me-2"></i>Add Branch</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Branch Name (EN) <span class="text-danger">*</span></label>
+                        <input type="text" name="Name" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Branch Name (AR)</label>
+                        <input type="text" name="NameAr" class="form-control" dir="rtl" />
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label">City</label>
+                            <input type="text" name="City" class="form-control" />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Phone</label>
+                            <input type="text" name="Phone" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="mb-3 mt-3">
+                        <label class="form-label">Address</label>
+                        <input type="text" name="Address" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Branch Type</label>
+                        <select name="BranchType" class="form-select">
+                            <option value="Restaurant">Restaurant</option>
+                            <option value="CoffeeShop">Coffee Shop</option>
+                            <option value="Bakery">Bakery</option>
+                            <option value="FastFood">Fast Food</option>
+                            <option value="Grocery">Grocery</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-lg me-1"></i>Save Branch
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Branch Modal -->
+<div class="modal fade" id="editBranchModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Update">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="Id" id="editId" />
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Edit Branch</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Branch Name (EN) <span class="text-danger">*</span></label>
+                        <input type="text" name="Name" id="editName" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Branch Name (AR)</label>
+                        <input type="text" name="NameAr" id="editNameAr" class="form-control" dir="rtl" />
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label">City</label>
+                            <input type="text" name="City" id="editCity" class="form-control" />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Phone</label>
+                            <input type="text" name="Phone" id="editPhone" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="mb-3 mt-3">
+                        <label class="form-label">Address</label>
+                        <input type="text" name="Address" id="editAddress" class="form-control" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-lg me-1"></i>Update Branch
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function editBranch(id, name, nameAr, city, address, phone) {
+    document.getElementById('editId').value = id;
+    document.getElementById('editName').value = name;
+    document.getElementById('editNameAr').value = nameAr;
+    document.getElementById('editCity').value = city;
+    document.getElementById('editAddress').value = address;
+    document.getElementById('editPhone').value = phone;
+    new bootstrap.Modal(document.getElementById('editBranchModal')).show();
+}
+</script>
+}
