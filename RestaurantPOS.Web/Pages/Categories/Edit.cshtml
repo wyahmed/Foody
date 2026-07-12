@@ -1,0 +1,110 @@
+@page "{id?}"
+@model RestaurantPOS.Web.Pages.Categories.EditModel
+@{
+    ViewData["Title"] = Model.IsNew ? "Add Category" : "Edit Category";
+    ViewData["ActivePage"] = "Categories";
+}
+
+<div class="d-flex align-items-center mb-4 gap-3">
+    <a asp-page="/Categories/Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <h4 class="mb-0">@(Model.IsNew ? Localizer["Add Category"] : Localizer["Edit Category"])</h4>
+</div>
+
+@if (!ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <div>@error.ErrorMessage</div>
+        }
+    </div>
+}
+
+<form method="post">
+    <input type="hidden" asp-for="Category.Id" />
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header fw-semibold">@Localizer["Basic Information"]</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">@Localizer["Name (EN)"] *</label>
+                            <input asp-for="Category.Name" class="form-control" required />
+                            <span asp-validation-for="Category.Name" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">@Localizer["Name (AR)"]</label>
+                            <input asp-for="Category.NameAr" class="form-control" dir="rtl" />
+                            <span asp-validation-for="Category.NameAr" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">@Localizer["Parent Category"]</label>
+                            <select asp-for="Category.ParentCategoryId" class="form-select">
+                                <option value="">@Localizer["Top level category"]</option>
+                                @foreach (var parent in Model.ParentCategories)
+                                {
+                                    <option value="@parent.Id">@parent.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Category.ParentCategoryId" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">@Localizer["Sort Order"]</label>
+                            <input asp-for="Category.SortOrder" type="number" min="0" class="form-control" />
+                            <span asp-validation-for="Category.SortOrder" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">@Localizer["Description"]</label>
+                            <textarea asp-for="Category.Description" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">@Localizer["Description (AR)"]</label>
+                            <textarea asp-for="Category.DescriptionAr" class="form-control" rows="3" dir="rtl"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header fw-semibold">@Localizer["Appearance"]</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["Color"]</label>
+                        <input asp-for="Category.Color" class="form-control" placeholder="#198754" />
+                        <span asp-validation-for="Category.Color" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["Icon"]</label>
+                        <input asp-for="Category.Icon" class="form-control" placeholder="bi-tag" />
+                        <span asp-validation-for="Category.Icon" class="text-danger small"></span>
+                        <small class="text-muted">@Localizer["Use a Bootstrap icon class such as bi-tag or bi-cup-hot."]</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header fw-semibold">@Localizer["Status"]</div>
+                <div class="card-body">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" asp-for="Category.IsActive" />
+                        <label class="form-check-label" asp-for="Category.IsActive">@Localizer["Active"]</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save me-1"></i>@Localizer["Save Category"]
+                </button>
+                <a asp-page="/Categories/Index" class="btn btn-outline-secondary">@Localizer["Cancel"]</a>
+            </div>
+        </div>
+    </div>
+</form>
