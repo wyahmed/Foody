@@ -154,7 +154,7 @@ public class EditModel : PageModel
             return;
         }
 
-        var currentParentId = parentId;
+        Guid? currentParentId = parentId;
         while (currentParentId != null)
         {
             if (currentParentId == Category.Id)
