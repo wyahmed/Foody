@@ -10,7 +10,7 @@
         "projectUniqueName": "/home/runner/work/Foody/Foody/RestaurantPOS.Application/RestaurantPOS.Application.csproj",
         "projectName": "RestaurantPOS.Application",
         "projectPath": "/home/runner/work/Foody/Foody/RestaurantPOS.Application/RestaurantPOS.Application.csproj",
-        "packagesPath": "/tmp/codeql-scratch-2a3c4e663f780c56/dbs/csharp/working/packages",
+        "packagesPath": "/home/runner/.nuget/packages/",
         "outputPath": "/home/runner/work/Foody/Foody/RestaurantPOS.Application/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
@@ -85,16 +85,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.28, 8.0.28]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.28, 8.0.28]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
@@ -110,7 +100,7 @@
         "projectUniqueName": "/home/runner/work/Foody/Foody/RestaurantPOS.Domain/RestaurantPOS.Domain.csproj",
         "projectName": "RestaurantPOS.Domain",
         "projectPath": "/home/runner/work/Foody/Foody/RestaurantPOS.Domain/RestaurantPOS.Domain.csproj",
-        "packagesPath": "/tmp/codeql-scratch-2a3c4e663f780c56/dbs/csharp/working/packages",
+        "packagesPath": "/home/runner/.nuget/packages/",
         "outputPath": "/home/runner/work/Foody/Foody/RestaurantPOS.Domain/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
@@ -162,16 +152,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.28, 8.0.28]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.28, 8.0.28]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
@@ -187,7 +167,7 @@
         "projectUniqueName": "/home/runner/work/Foody/Foody/RestaurantPOS.Infrastructure/RestaurantPOS.Infrastructure.csproj",
         "projectName": "RestaurantPOS.Infrastructure",
         "projectPath": "/home/runner/work/Foody/Foody/RestaurantPOS.Infrastructure/RestaurantPOS.Infrastructure.csproj",
-        "packagesPath": "/tmp/codeql-scratch-2a3c4e663f780c56/dbs/csharp/working/packages",
+        "packagesPath": "/home/runner/.nuget/packages/",
         "outputPath": "/home/runner/work/Foody/Foody/RestaurantPOS.Infrastructure/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
@@ -301,16 +281,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.28, 8.0.28]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.28, 8.0.28]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
@@ -326,7 +296,7 @@
         "projectUniqueName": "/home/runner/work/Foody/Foody/RestaurantPOS.Shared/RestaurantPOS.Shared.csproj",
         "projectName": "RestaurantPOS.Shared",
         "projectPath": "/home/runner/work/Foody/Foody/RestaurantPOS.Shared/RestaurantPOS.Shared.csproj",
-        "packagesPath": "/tmp/codeql-scratch-2a3c4e663f780c56/dbs/csharp/working/packages",
+        "packagesPath": "/home/runner/.nuget/packages/",
         "outputPath": "/home/runner/work/Foody/Foody/RestaurantPOS.Shared/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
@@ -372,16 +342,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.28, 8.0.28]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.28, 8.0.28]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
@@ -397,7 +357,7 @@
         "projectUniqueName": "/home/runner/work/Foody/Foody/RestaurantPOS.Web/RestaurantPOS.Web.csproj",
         "projectName": "RestaurantPOS.Web",
         "projectPath": "/home/runner/work/Foody/Foody/RestaurantPOS.Web/RestaurantPOS.Web.csproj",
-        "packagesPath": "/tmp/codeql-scratch-2a3c4e663f780c56/dbs/csharp/working/packages",
+        "packagesPath": "/home/runner/.nuget/packages/",
         "outputPath": "/home/runner/work/Foody/Foody/RestaurantPOS.Web/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
@@ -487,20 +447,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.28, 8.0.28]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Host.linux-x64",
-              "version": "[8.0.28, 8.0.28]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.28, 8.0.28]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
