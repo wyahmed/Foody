@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "FBJcz5In2Bo=",
+  "dgSpecHash": "2BCNxADjml0=",
   "success": true,
   "projectFilePath": "/home/runner/work/Foody/Foody/RestaurantPOS.Web/RestaurantPOS.Web.csproj",
   "expectedPackageFiles": [
@@ -240,18 +240,5 @@
     "/home/runner/.nuget/packages/xlparser/1.5.2/xlparser.1.5.2.nupkg.sha512",
     "/home/runner/.nuget/packages/yamldotnet/13.3.1/yamldotnet.13.3.1.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1603",
-      "level": "Warning",
-      "message": "RestaurantPOS.Application depends on Riok.Mapperly (>= 3.7.0) but Riok.Mapperly 3.7.0 was not found. Riok.Mapperly 4.0.0 was resolved instead.",
-      "projectPath": "/home/runner/work/Foody/Foody/RestaurantPOS.Web/RestaurantPOS.Web.csproj",
-      "warningLevel": 1,
-      "filePath": "/home/runner/work/Foody/Foody/RestaurantPOS.Web/RestaurantPOS.Web.csproj",
-      "libraryId": "Riok.Mapperly",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    }
-  ]
+  "logs": []
 }

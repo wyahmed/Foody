@@ -4334,7 +4334,7 @@
           "Microsoft.Extensions.Logging.Abstractions": "8.0.3",
           "RestaurantPOS.Domain": "1.0.0",
           "RestaurantPOS.Shared": "1.0.0",
-          "Riok.Mapperly": "3.7.0"
+          "Riok.Mapperly": "4.0.0"
         },
         "compile": {
           "bin/placeholder/RestaurantPOS.Application.dll": {}
@@ -12361,17 +12361,5 @@
         "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.301/PortableRuntimeIdentifierGraph.json"
       }
     }
-  },
-  "logs": [
-    {
-      "code": "NU1603",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "RestaurantPOS.Application depends on Riok.Mapperly (>= 3.7.0) but Riok.Mapperly 3.7.0 was not found. Riok.Mapperly 4.0.0 was resolved instead.",
-      "libraryId": "Riok.Mapperly",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    }
-  ]
+  }
 }
