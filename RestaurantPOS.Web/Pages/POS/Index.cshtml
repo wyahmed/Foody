@@ -1,9 +1,12 @@
 @page "/POS"
 @model RestaurantPOS.Web.Pages.POS.IndexModel
 @using System.Globalization
+@using System.Text.Encodings.Web
 @{
     ViewData["Title"] = "POS";
     Layout = "_Layout";
+    var currentLang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var isArabic = currentLang == "ar";
 }
 
 @section Styles {
@@ -68,6 +71,10 @@
 }
 
 <div class="pos-screen" id="pos-app">
+    <form id="antiForgeryForm" class="d-none">
+        @Html.AntiForgeryToken()
+    </form>
+
     <!-- POS Toolbar -->
     <div class="d-flex align-items-center gap-2 mb-3">
         <!-- Order type selector -->
@@ -118,6 +125,7 @@
             </div>
             @foreach (var cat in Model.Categories)
             {
+                var categoryLabel = isArabic && !string.IsNullOrWhiteSpace(cat.NameAr) ? cat.NameAr : cat.Name;
                 <div class="cat-item" onclick="filterCategory('@cat.Id', this)" data-category="@cat.Id"
                      @(cat.Color != null ? $"style=\"--cat-color:{cat.Color}\"" : "")>
                     <span class="cat-icon">
@@ -130,7 +138,7 @@
                             <i class="bi bi-tag-fill"></i>
                         }
                     </span>
-                    <span class="cat-label">@cat.Name</span>
+                    <span class="cat-label">@categoryLabel</span>
                 </div>
             }
         </div>
@@ -150,14 +158,15 @@
                 <div class="pos-product-grid" id="productGrid">
                     @foreach (var product in Model.Products)
                     {
+                        var displayProductName = isArabic && !string.IsNullOrWhiteSpace(product.NameAr) ? product.NameAr : product.Name;
                         <button class="pos-product-btn"
-                                onclick="addToOrder('@product.Id', '@product.Name.Replace("'","\\'")', @product.SellingPrice.ToString("F4", CultureInfo.InvariantCulture), @product.TaxRate.ToString("F4", CultureInfo.InvariantCulture))"
+                                onclick="addToOrder('@product.Id', '@JavaScriptEncoder.Default.Encode(displayProductName)', @product.SellingPrice.ToString("F4", CultureInfo.InvariantCulture), @product.TaxRate.ToString("F4", CultureInfo.InvariantCulture))"
                                 data-category="@product.CategoryId"
                                 data-barcode="@product.Barcode"
-                                data-name="@product.Name.ToLower()">
+                                data-name="@($"{product.Name} {product.NameAr}".ToLowerInvariant())">
                             @if (product.ImageUrl != null)
                             {
-                                <img src="@product.ImageUrl" alt="@product.Name"
+                                <img src="@product.ImageUrl" alt="@displayProductName"
                                      style="width:60px;height:60px;object-fit:cover;border-radius:8px" />
                             }
                             else
@@ -167,7 +176,7 @@
                                     <i class="bi bi-box-seam"></i>
                                 </div>
                             }
-                            <div class="fw-semibold" style="font-size:.85rem">@product.Name</div>
+                            <div class="fw-semibold" style="font-size:.85rem">@displayProductName</div>
                             <div class="product-price">@product.SellingPrice.ToString("N2")</div>
                         </button>
                     }
@@ -324,13 +333,16 @@ let pendingProduct = null;
 
 // --- Add item to order ---
 function addToOrder(productId, name, price, taxRate, variantName = null, modifiers = []) {
-    const existing = orderItems.find(i => i.productId === productId && JSON.stringify(i.modifiers) === JSON.stringify(modifiers));
+    const normalizedModifiers = Array.isArray(modifiers) ? modifiers : [];
+    const existing = orderItems.find(i => i.productId === productId
+        && i.variantName === variantName
+        && JSON.stringify(Array.isArray(i.modifiers) ? i.modifiers : []) === JSON.stringify(normalizedModifiers));
     if (existing) {
         existing.qty++;
     } else {
         orderItems.push({
             productId, name, price: parseFloat(price), taxRate: parseFloat(taxRate),
-            qty: 1, variantName, modifiers, notes: ''
+            qty: 1, variantName, modifiers: normalizedModifiers, notes: ''
         });
     }
     renderOrder();
@@ -354,7 +366,7 @@ function renderOrder() {
                 <div class="flex-grow-1">
                     <div class="fw-semibold" style="font-size:.9rem">${item.name}</div>
                     ${item.variantName ? `<small class="text-muted">${item.variantName}</small>` : ''}
-                    ${item.modifiers.map(m => `<small class="text-muted d-block">+ ${m.name} (${m.price.toFixed(2)})</small>`).join('')}
+                    ${(Array.isArray(item.modifiers) ? item.modifiers : []).map(m => `<small class="text-muted d-block">+ ${m.name} (${(m.price || 0).toFixed(2)})</small>`).join('')}
                 </div>
                 <button class="btn btn-link btn-sm text-danger p-0" onclick="removeItem(${idx})">
                     <i class="bi bi-trash-fill"></i>
@@ -366,7 +378,7 @@ function renderOrder() {
                     <span class="fw-bold">${item.qty}</span>
                     <button class="btn btn-outline-secondary btn-sm px-2 py-0" onclick="changeQty(${idx}, 1)">+</button>
                 </div>
-                <div class="fw-semibold text-success">${((item.price + item.modifiers.reduce((a,m)=>a+m.price,0)) * item.qty).toFixed(2)}</div>
+                <div class="fw-semibold text-success">${((item.price + (Array.isArray(item.modifiers) ? item.modifiers : []).reduce((a,m)=>a+(m.price || 0),0)) * item.qty).toFixed(2)}</div>
             </div>
         </div>`).join('');
     recalculate();
@@ -393,7 +405,7 @@ function clearOrder() {
 function recalculate() {
     let subtotal = 0, tax = 0;
     for (const item of orderItems) {
-        const linePrice = (item.price + item.modifiers.reduce((a,m) => a + m.price, 0)) * item.qty;
+        const linePrice = (item.price + (Array.isArray(item.modifiers) ? item.modifiers : []).reduce((a,m) => a + (m.price || 0), 0)) * item.qty;
         subtotal += linePrice;
         tax += linePrice * (item.taxRate / 100);
     }
@@ -474,40 +486,43 @@ async function confirmPayment() {
     if (orderItems.length === 0) return;
     const total = parseFloat(document.getElementById('total').textContent);
     const tendered = parseFloat(document.getElementById('cashTendered').value) || total;
+    const token = document.querySelector('#antiForgeryForm input[name="__RequestVerificationToken"]')?.value;
 
     const payload = {
-        branchId: '@Model.BranchId',
         orderType: document.querySelector('input[name=orderType]:checked')?.value || 'DineIn',
         tableId: document.getElementById('tableSelect').value || null,
         notes: null,
         numberOfGuests: 1,
-        items: orderItems.map(i => ({ productId: i.productId, quantity: i.qty, notes: i.notes, modifiers: i.modifiers.map(m => ({ modifierId: m.id })) })),
-        couponCode: couponData?.code || null
+        items: orderItems.map(i => ({
+            productId: i.productId,
+            quantity: i.qty,
+            notes: i.notes,
+            modifiers: (Array.isArray(i.modifiers) ? i.modifiers : []).map(m => ({ modifierId: m.id }))
+        })),
+        couponCode: couponData?.code || null,
+        paymentMethod,
+        tenderedAmount: tendered
     };
 
     try {
-        const createResp = await fetch('/api/orders', {
+        const checkoutResp = await fetch('/POS?handler=Checkout', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'RequestVerificationToken': token || ''
+            },
             body: JSON.stringify(payload)
         });
-        if (!createResp.ok) { showToast('Failed to create order', 'danger'); return; }
-        const { id: orderId } = await createResp.json();
-
-        const payResp = await fetch(`/api/orders/${orderId}/payment`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-            body: JSON.stringify({ payments: [{ method: paymentMethod, amount: tendered }] })
-        });
-        if (!payResp.ok) { showToast('Payment failed', 'danger'); return; }
-        const { invoiceId } = await payResp.json();
+        if (!checkoutResp.ok) {
+            const error = await checkoutResp.json().catch(() => null);
+            showToast(error?.error || 'Failed to save order', 'danger');
+            return;
+        }
 
         bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide();
-        showToast('Payment successful! Printing receipt...', 'success');
+        showToast('Payment successful!', 'success');
         clearOrder();
-
-        // Open receipt
-        window.open(`/api/invoices/${invoiceId}/receipt`, '_blank');
     } catch (err) {
         showToast('Network error: ' + err.message, 'danger');
     }
