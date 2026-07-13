@@ -231,3 +231,9 @@
 /home/runner/work/Foody/Foody/RestaurantPOS.Web/obj/Debug/net8.0/RestaurantPOS.Web.pdb
 /home/runner/work/Foody/Foody/RestaurantPOS.Web/obj/Debug/net8.0/RestaurantPOS.Web.genruntimeconfig.cache
 /home/runner/work/Foody/Foody/RestaurantPOS.Web/obj/Debug/net8.0/ref/RestaurantPOS.Web.dll
+/home/runner/work/Foody/Foody/RestaurantPOS.Web/bin/Debug/net8.0/ar/RestaurantPOS.Web.resources.dll
+/home/runner/work/Foody/Foody/RestaurantPOS.Web/obj/Debug/net8.0/RestaurantPOS.Web.Resources.SharedResource.resources
+/home/runner/work/Foody/Foody/RestaurantPOS.Web/obj/Debug/net8.0/RestaurantPOS.Web.Resources.SharedResource.ar.resources
+/home/runner/work/Foody/Foody/RestaurantPOS.Web/obj/Debug/net8.0/RestaurantPOS.Web.csproj.GenerateResource.cache
+/home/runner/work/Foody/Foody/RestaurantPOS.Web/obj/Debug/net8.0/ar/RestaurantPOS.Web.resources.cs
+/home/runner/work/Foody/Foody/RestaurantPOS.Web/obj/Debug/net8.0/ar/RestaurantPOS.Web.resources.dll

@@ -22,6 +22,11 @@
         },
         "runtime": {
           "RestaurantPOS.Web.dll": {}
+        },
+        "resources": {
+          "ar/RestaurantPOS.Web.resources.dll": {
+            "locale": "ar"
+          }
         }
       },
       "AspNetCore.HealthChecks.SqlServer/8.0.1": {

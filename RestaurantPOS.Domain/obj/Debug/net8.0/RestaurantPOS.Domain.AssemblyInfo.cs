@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RestaurantPOS.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+922a6a1fb82eb347c6fe512c232d96c2c2a438b8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b33faef7395ab2567cf3bc3eeb7fc514d776fcfa")]
 [assembly: System.Reflection.AssemblyProductAttribute("RestaurantPOS.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RestaurantPOS.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
