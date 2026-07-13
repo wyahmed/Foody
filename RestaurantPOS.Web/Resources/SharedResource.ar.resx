@@ -249,7 +249,7 @@
   <data name="Delete" xml:space="preserve">
     <value>حذف</value>
   </data>
-  <data name="Delete "{0}"? This action cannot be undone." xml:space="preserve">
+  <data name='Delete "{0}"? This action cannot be undone.' xml:space="preserve">
     <value>حذف "{0}"؟ لا يمكن التراجع عن هذا الإجراء.</value>
   </data>
   <data name="Delivered" xml:space="preserve">
@@ -395,9 +395,6 @@
   </data>
   <data name="Last Updated" xml:space="preserve">
     <value>آخر تحديث</value>
-  </data>
-  <data name="Last login" xml:space="preserve">
-    <value>آخر تسجيل دخول</value>
   </data>
   <data name="Low Stock" xml:space="preserve">
     <value>مخزون منخفض</value>
@@ -896,9 +893,6 @@
   </data>
   <data name="ZATCA e-Invoicing" xml:space="preserve">
     <value>الفوترة الإلكترونية - هيئة الزكاة</value>
-  </data>
-  <data name="orders" xml:space="preserve">
-    <value>طلبات</value>
   </data>
   <data name="products are running low on stock!" xml:space="preserve">
     <value>المنتجات منخفضة المخزون!</value>

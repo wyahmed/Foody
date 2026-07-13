@@ -249,7 +249,7 @@
   <data name="Delete" xml:space="preserve">
     <value>Delete</value>
   </data>
-  <data name="Delete "{0}"? This action cannot be undone." xml:space="preserve">
+  <data name='Delete "{0}"? This action cannot be undone.' xml:space="preserve">
     <value>Delete "{0}"? This action cannot be undone.</value>
   </data>
   <data name="Delivered" xml:space="preserve">
@@ -395,9 +395,6 @@
   </data>
   <data name="Last Updated" xml:space="preserve">
     <value>Last Updated</value>
-  </data>
-  <data name="Last login" xml:space="preserve">
-    <value>Last login</value>
   </data>
   <data name="Low Stock" xml:space="preserve">
     <value>Low Stock</value>
@@ -896,9 +893,6 @@
   </data>
   <data name="ZATCA e-Invoicing" xml:space="preserve">
     <value>ZATCA e-Invoicing</value>
-  </data>
-  <data name="orders" xml:space="preserve">
-    <value>orders</value>
   </data>
   <data name="products are running low on stock!" xml:space="preserve">
     <value>products are running low on stock!</value>
