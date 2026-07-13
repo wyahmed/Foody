@@ -13,6 +13,9 @@
         ["productNotFound"] = isArabic ? "المنتج غير موجود: {0}" : "Product not found: {0}",
         ["addItemsBeforePayment"] = isArabic ? "أضف عناصر قبل الدفع" : "Add items before payment",
         ["insufficientCash"] = isArabic ? "المبلغ المدفوع أقل من إجمالي الطلب." : "Tendered amount is less than the order total.",
+        ["paidAmountRequired"] = isArabic ? "أدخل المبلغ المدفوع." : "Enter the paid amount.",
+        ["confirmPaymentTitle"] = isArabic ? "تأكيد الدفع - {0}" : "Confirm Payment - {0}",
+        ["paidAmountLabel"] = isArabic ? "المبلغ المدفوع - {0}" : "Paid Amount - {0}",
         ["failedToSaveOrder"] = isArabic ? "فشل حفظ الطلب" : "Failed to save order",
         ["paymentSuccessful"] = isArabic ? "تمت عملية الدفع بنجاح!" : "Payment successful!",
         ["networkError"] = isArabic ? "خطأ في الشبكة: " : "Network error: ",
@@ -288,7 +291,7 @@
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">@(isArabic ? "الدفع نقداً" : "Cash Payment")</h5>
+            <h5 class="modal-title" id="paymentModalTitle">@(isArabic ? "تأكيد الدفع" : "Confirm Payment")</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body text-center">
@@ -297,9 +300,17 @@
                     <div class="fs-2 fw-bold text-success" id="payTotal">0.00 SAR</div>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">@(isArabic ? "المبلغ المدفوع" : "Cash Tendered")</label>
+                    <label class="form-label" id="paidAmountLabel">@(isArabic ? "المبلغ المدفوع" : "Paid Amount")</label>
                     <input type="number" class="form-control form-control-lg text-center" id="cashTendered"
-                           step="0.01" min="0" placeholder="0.00" />
+                           step="0.01" min="0" placeholder="0.00" inputmode="decimal" />
+                    <div class="d-flex gap-2 mt-2">
+                        <button type="button" class="btn btn-outline-success flex-grow-1" onclick="setExactAmount()">
+                            @(isArabic ? "المبلغ كامل" : "Exact Amount")
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" onclick="numpadClear()">
+                            <i class="bi bi-backspace"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <div class="text-muted">@(isArabic ? "الباقي" : "Change")</div>
@@ -310,12 +321,12 @@
                     @foreach (var n in new[] { "7","8","9","4","5","6","1","2","3","00","0","." })
                     {
                         <div class="col-4">
-                            <button class="btn btn-outline-secondary w-100 numpad-btn"
+                            <button type="button" class="btn btn-outline-secondary w-100 numpad-btn"
                                     onclick="numpadInput('@n')">@n</button>
                         </div>
                     }
                     <div class="col-12">
-                        <button class="btn btn-outline-danger w-100 numpad-btn" onclick="numpadClear()">
+                        <button type="button" class="btn btn-outline-danger w-100 numpad-btn" onclick="numpadClear()">
                             <i class="bi bi-backspace"></i> @(isArabic ? "مسح" : "Clear")
                         </button>
                     </div>
@@ -488,14 +499,33 @@ window.addEventListener('barcodeScanned', e => {
 
 // --- Payment ---
 let paymentMethod = 'Cash';
+const paymentMethodLabels = {
+    Cash: '@(isArabic ? "نقداً" : "Cash")',
+    Card: '@(isArabic ? "بطاقة" : "Card")'
+};
+
+function getOrderTotal() {
+    return parseFloat(document.getElementById('total').textContent) || 0;
+}
+
 function processPayment(method) {
     if (orderItems.length === 0) { showToast(posText('addItemsBeforePayment'), 'warning'); return; }
     paymentMethod = method;
-    const total = parseFloat(document.getElementById('total').textContent);
+    const total = getOrderTotal();
     document.getElementById('payTotal').textContent = total.toFixed(2) + ' SAR';
-    document.getElementById('cashTendered').value = '';
-    document.getElementById('changeAmount').textContent = '0.00 SAR';
-    new bootstrap.Modal(document.getElementById('paymentModal')).show();
+    document.getElementById('paymentModalTitle').textContent = posText('confirmPaymentTitle', paymentMethodLabels[method] || method);
+    document.getElementById('paidAmountLabel').textContent = posText('paidAmountLabel', paymentMethodLabels[method] || method);
+
+    const input = document.getElementById('cashTendered');
+    input.value = method === 'Cash' ? '' : total.toFixed(2);
+    updateChange();
+
+    const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('paymentModal'));
+    modal.show();
+    setTimeout(() => {
+        input.focus();
+        input.select();
+    }, 150);
 }
 
 function numpadInput(val) {
@@ -504,8 +534,12 @@ function numpadInput(val) {
     updateChange();
 }
 function numpadClear() { document.getElementById('cashTendered').value = ''; updateChange(); }
+function setExactAmount() {
+    document.getElementById('cashTendered').value = getOrderTotal().toFixed(2);
+    updateChange();
+}
 function updateChange() {
-    const total = parseFloat(document.getElementById('payTotal').textContent);
+    const total = parseFloat(document.getElementById('payTotal').textContent) || 0;
     const tendered = parseFloat(document.getElementById('cashTendered').value) || 0;
     document.getElementById('changeAmount').textContent = Math.max(0, tendered - total).toFixed(2) + ' SAR';
 }
@@ -513,8 +547,18 @@ document.getElementById('cashTendered').addEventListener('input', updateChange);
 
 async function confirmPayment() {
     if (orderItems.length === 0) return;
-    const total = parseFloat(document.getElementById('total').textContent);
-    const tendered = parseFloat(document.getElementById('cashTendered').value) || total;
+    const total = getOrderTotal();
+    const tenderedRaw = document.getElementById('cashTendered').value.trim();
+    const parsedTendered = parseFloat(tenderedRaw);
+    const tendered = Number.isFinite(parsedTendered)
+        ? parsedTendered
+        : (paymentMethod === 'Cash' ? 0 : total);
+
+    if (tendered <= 0) {
+        showToast(posText('paidAmountRequired'), 'warning');
+        return;
+    }
+
     if (paymentMethod === 'Cash' && tendered < total) {
         showToast(posText('insufficientCash'), 'warning');
         return;

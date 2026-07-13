@@ -127,7 +127,18 @@ public class IndexModel : PageModel
             if (createResult.IsFailure)
                 return new JsonResult(new { error = createResult.Error }) { StatusCode = StatusCodes.Status400BadRequest };
 
-            var paymentAmount = request.TenderedAmount <= 0 ? 0 : request.TenderedAmount;
+            var paymentAmount = request.TenderedAmount;
+            if (paymentAmount <= 0)
+            {
+                if (paymentMethod == PaymentMethod.Cash)
+                    return BadRequestJson("Paid amount is required.", "المبلغ المدفوع مطلوب.");
+
+                paymentAmount = await _context.Orders
+                    .Where(o => o.Id == createResult.Value)
+                    .Select(o => o.TotalAmount)
+                    .FirstAsync(cancellationToken);
+            }
+
             var paymentResult = await _mediator.Send(
                 new ProcessPaymentCommand(createResult.Value, [new PaymentRequest(paymentMethod, paymentAmount)]),
                 cancellationToken);
