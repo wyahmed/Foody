@@ -3,10 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using RestaurantPOS.Application.Common.Exceptions;
 using RestaurantPOS.Application.Features.Orders.Commands;
 using RestaurantPOS.Domain.Enums;
 using RestaurantPOS.Domain.Interfaces;
 using RestaurantPOS.Infrastructure.Data;
+using System.Globalization;
 
 namespace RestaurantPOS.Web.Pages.POS;
 
@@ -17,12 +20,14 @@ public class IndexModel : PageModel
     private readonly ApplicationDbContext _context;
     private readonly ICurrentUserService _currentUser;
     private readonly IMediator _mediator;
+    private readonly ILogger<IndexModel> _logger;
 
-    public IndexModel(ApplicationDbContext context, ICurrentUserService currentUser, IMediator mediator)
+    public IndexModel(ApplicationDbContext context, ICurrentUserService currentUser, IMediator mediator, ILogger<IndexModel> logger)
     {
         _context = context;
         _currentUser = currentUser;
         _mediator = mediator;
+        _logger = logger;
     }
 
     public List<PosProductDto> Products { get; private set; } = new();
@@ -30,6 +35,7 @@ public class IndexModel : PageModel
     public List<PosTableDto> Tables { get; private set; } = new();
     public string SelectedOrderType { get; private set; } = "DineIn";
     public string? BranchId => _currentUser.BranchId?.ToString();
+    private bool IsArabic => CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
 
     public async Task OnGetAsync()
     {
@@ -80,52 +86,78 @@ public class IndexModel : PageModel
     public async Task<IActionResult> OnPostCheckoutAsync([FromBody] CheckoutRequest request, CancellationToken cancellationToken)
     {
         if (request.Items is null || request.Items.Count == 0)
-            return new JsonResult(new { error = "Order must have at least one item." }) { StatusCode = StatusCodes.Status400BadRequest };
+            return BadRequestJson("Order must have at least one item.", "يجب أن يحتوي الطلب على صنف واحد على الأقل.");
 
         var branchId = _currentUser.BranchId;
         if (branchId is null)
-            return new JsonResult(new { error = "Branch is required." }) { StatusCode = StatusCodes.Status400BadRequest };
+            return BadRequestJson("Branch is required.", "الفرع مطلوب.");
 
         if (!Enum.TryParse<OrderType>(request.OrderType, true, out var orderType))
-            return new JsonResult(new { error = "Invalid order type." }) { StatusCode = StatusCodes.Status400BadRequest };
+            return BadRequestJson("Invalid order type.", "نوع الطلب غير صالح.");
 
         if (!Enum.TryParse<PaymentMethod>(request.PaymentMethod, true, out var paymentMethod))
-            return new JsonResult(new { error = "Invalid payment method." }) { StatusCode = StatusCodes.Status400BadRequest };
+            return BadRequestJson("Invalid payment method.", "طريقة الدفع غير صالحة.");
 
-        var createCommand = new CreateOrderCommand(
-            branchId.Value,
-            orderType,
-            request.TableId,
-            null,
-            null,
-            null,
-            null,
-            request.Notes,
-            request.NumberOfGuests <= 0 ? 1 : request.NumberOfGuests,
-            request.Items.Select(i => new OrderItemRequest(
-                i.ProductId,
+        if (orderType == OrderType.Delivery && string.IsNullOrWhiteSpace(request.DeliveryAddress))
+            return BadRequestJson("Delivery address is required for delivery orders.", "عنوان التوصيل مطلوب لطلبات التوصيل.");
+
+        try
+        {
+            var createCommand = new CreateOrderCommand(
+                branchId.Value,
+                orderType,
+                request.TableId,
                 null,
-                i.Quantity <= 0 ? 1 : i.Quantity,
-                i.Notes,
-                i.Modifiers?.Select(m => new OrderItemModifierRequest(m.ModifierId, 1)).ToList())).ToList(),
-            null,
-            request.CouponCode,
-            null);
+                null,
+                null,
+                string.IsNullOrWhiteSpace(request.DeliveryAddress) ? null : request.DeliveryAddress.Trim(),
+                request.Notes,
+                request.NumberOfGuests <= 0 ? 1 : request.NumberOfGuests,
+                request.Items.Select(i => new OrderItemRequest(
+                    i.ProductId,
+                    null,
+                    i.Quantity <= 0 ? 1 : i.Quantity,
+                    i.Notes,
+                    i.Modifiers?.Select(m => new OrderItemModifierRequest(m.ModifierId, 1)).ToList())).ToList(),
+                null,
+                request.CouponCode,
+                null);
 
-        var createResult = await _mediator.Send(createCommand, cancellationToken);
-        if (createResult.IsFailure)
-            return new JsonResult(new { error = createResult.Error }) { StatusCode = StatusCodes.Status400BadRequest };
+            var createResult = await _mediator.Send(createCommand, cancellationToken);
+            if (createResult.IsFailure)
+                return new JsonResult(new { error = createResult.Error }) { StatusCode = StatusCodes.Status400BadRequest };
 
-        var paymentAmount = request.TenderedAmount <= 0 ? 0 : request.TenderedAmount;
-        var paymentResult = await _mediator.Send(
-            new ProcessPaymentCommand(createResult.Value, [new PaymentRequest(paymentMethod, paymentAmount)]),
-            cancellationToken);
+            var paymentAmount = request.TenderedAmount <= 0 ? 0 : request.TenderedAmount;
+            var paymentResult = await _mediator.Send(
+                new ProcessPaymentCommand(createResult.Value, [new PaymentRequest(paymentMethod, paymentAmount)]),
+                cancellationToken);
 
-        if (paymentResult.IsFailure)
-            return new JsonResult(new { error = paymentResult.Error }) { StatusCode = StatusCodes.Status400BadRequest };
+            if (paymentResult.IsFailure)
+                return new JsonResult(new { error = paymentResult.Error }) { StatusCode = StatusCodes.Status400BadRequest };
 
-        return new JsonResult(new { orderId = createResult.Value, invoiceId = paymentResult.Value });
+            return new JsonResult(new { orderId = createResult.Value, invoiceId = paymentResult.Value });
+        }
+        catch (ValidationException ex)
+        {
+            var errorMessage = ex.Errors.SelectMany(e => e.Value).FirstOrDefault()
+                ?? (IsArabic ? "تعذر التحقق من الطلب." : "Order validation failed.");
+            return new JsonResult(new { error = errorMessage }) { StatusCode = StatusCodes.Status400BadRequest };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to complete POS checkout for branch {BranchId}", branchId);
+            return new JsonResult(new
+            {
+                error = IsArabic
+                    ? "حدث خطأ غير متوقع أثناء حفظ الطلب."
+                    : "An unexpected error occurred while saving the order."
+            })
+            { StatusCode = StatusCodes.Status500InternalServerError };
+        }
     }
+
+    private JsonResult BadRequestJson(string english, string arabic)
+        => new(new { error = IsArabic ? arabic : english }) { StatusCode = StatusCodes.Status400BadRequest };
 
     public record PosProductDto(
         Guid Id, string Name, string NameAr, decimal SellingPrice, decimal CostPrice,
@@ -143,7 +175,8 @@ public class IndexModel : PageModel
         List<CheckoutItemRequest> Items,
         string? CouponCode,
         string PaymentMethod,
-        decimal TenderedAmount);
+        decimal TenderedAmount,
+        string? DeliveryAddress);
 
     public record CheckoutItemRequest(Guid ProductId, decimal Quantity, string? Notes, List<CheckoutItemModifierRequest>? Modifiers);
     public record CheckoutItemModifierRequest(Guid ModifierId);

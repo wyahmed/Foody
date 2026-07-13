@@ -4,6 +4,10 @@
 
 'use strict';
 
+function localText(key, fallback) {
+    return (window.appTexts && window.appTexts[key]) || fallback;
+}
+
 // --- Theme Management ---
 function toggleTheme() {
     const html = document.documentElement;
@@ -61,26 +65,26 @@ function connectSignalR(branchId) {
         .build();
 
     posConnection.on('NewOrder', (data) => {
-        showToast(`New order #${data.orderNumber} (${data.orderType})`, 'info', 'New Order');
+        showToast(formatAppText('newOrderMessage', data.orderNumber, data.orderType), 'info', localText('newOrderTitle', 'New Order'));
         updateNotificationBadge(1);
     });
 
     posConnection.on('KitchenReady', (data) => {
-        showToast(`Order #${data.orderNumber} is ready!`, 'success', 'Kitchen Ready');
+        showToast(formatAppText('kitchenReadyMessage', data.orderNumber), 'success', localText('kitchenReadyTitle', 'Kitchen Ready'));
         updateNotificationBadge(1);
     });
 
     posConnection.on('LowStock', (data) => {
-        showToast(`Low stock: ${data.productName} (${data.quantity} remaining)`, 'warning', 'Low Stock');
+        showToast(formatAppText('lowStockMessage', data.productName, data.quantity), 'warning', localText('lowStockTitle', 'Low Stock'));
     });
 
     posConnection.on('InvoiceFailed', (data) => {
-        showToast(`Invoice #${data.invoiceNumber} failed ZATCA reporting`, 'danger', 'Invoice Failed');
+        showToast(formatAppText('invoiceFailedMessage', data.invoiceNumber), 'danger', localText('invoiceFailedTitle', 'Invoice Failed'));
     });
 
     posConnection.start()
         .then(() => posConnection.invoke('JoinBranch', branchId))
-        .catch(err => console.error('SignalR connection failed:', err));
+        .catch(err => console.error(localText('signalrConnectionFailed', 'SignalR connection failed') + ':', err));
 }
 
 function updateNotificationBadge(add) {
@@ -126,13 +130,13 @@ document.addEventListener('keydown', (e) => {
 // --- HTMX global event handlers ---
 document.addEventListener('htmx:afterRequest', (e) => {
     if (e.detail.xhr.status >= 400) {
-        showToast('An error occurred. Please try again.', 'danger');
+        showToast(localText('genericRequestError', 'An error occurred. Please try again.'), 'danger');
     }
 });
 
 // --- Confirm delete helper ---
 window.confirmDelete = function (url, name) {
-    if (confirm(`Delete "${name}"? This action cannot be undone.`)) {
+    if (confirm(formatAppText('deleteConfirmMessage', name))) {
         const form = document.createElement('form');
         form.method = 'post';
         form.action = url;

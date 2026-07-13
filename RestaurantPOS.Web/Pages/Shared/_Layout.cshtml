@@ -1,7 +1,29 @@
 @using System.Globalization
+@using System.Text.Json
 @{
     var currentLang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName; // "ar" or "en"
     var isRtl = currentLang != "en";
+    var appTexts = new Dictionary<string, string>
+    {
+        ["notifications"] = Localizer["Notifications"],
+        ["noNewNotifications"] = Localizer["No new notifications"],
+        ["toggleTheme"] = Localizer["Toggle theme"],
+        ["profile"] = Localizer["Profile"],
+        ["settings"] = Localizer["Settings"],
+        ["signOut"] = Localizer["Sign Out"],
+        ["newOrderTitle"] = Localizer["New Order"],
+        ["newOrderMessage"] = Localizer["New order #{0} ({1})"],
+        ["kitchenReadyTitle"] = Localizer["Kitchen Ready"],
+        ["kitchenReadyMessage"] = Localizer["Order #{0} is ready!"],
+        ["lowStockTitle"] = Localizer["Low Stock"],
+        ["lowStockMessage"] = Localizer["Low stock: {0} ({1} remaining)"],
+        ["invoiceFailedTitle"] = Localizer["Invoice Failed"],
+        ["invoiceFailedMessage"] = Localizer["Invoice #{0} failed ZATCA reporting"],
+        ["signalrConnectionFailed"] = Localizer["SignalR connection failed"],
+        ["genericRequestError"] = Localizer["An error occurred. Please try again."],
+        ["deleteConfirmMessage"] = Localizer["Delete \"{0}\"? This action cannot be undone."],
+        ["sar"] = Localizer["SAR"]
+    };
 }
 <!DOCTYPE html>
 <html lang="@currentLang"
@@ -47,7 +69,7 @@
                 <form class="d-flex ms-3 me-auto" action="/Products" method="get">
                     <div class="input-group">
                         <input class="form-control form-control-sm" type="search" name="q"
-                               placeholder="@(ViewData["Lang"]?.ToString() == "en" ? "Search products, orders..." : "بحث عن منتجات، طلبات...")"
+                               placeholder="@Localizer["Search products, orders..."]"
                                style="min-width:280px" />
                         <button class="btn btn-outline-light btn-sm"><i class="bi bi-search"></i></button>
                     </div>
@@ -63,14 +85,14 @@
                                   id="notif-count" style="display:none">0</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" style="min-width:320px">
-                            <li><h6 class="dropdown-header">Notifications</h6></li>
-                            <li id="notif-list"><li class="dropdown-item text-muted small">No new notifications</li></li>
+                            <li><h6 class="dropdown-header">@Localizer["Notifications"]</h6></li>
+                            <li id="notif-list"><li class="dropdown-item text-muted small">@Localizer["No new notifications"]</li></li>
                         </ul>
                     </li>
 
                     <!-- Dark Mode Toggle -->
                     <li class="nav-item">
-                        <button class="btn btn-link nav-link" onclick="toggleTheme()" title="Toggle theme">
+                        <button class="btn btn-link nav-link" onclick="toggleTheme()" title="@Localizer["Toggle theme"]">
                             <i class="bi bi-moon-stars-fill" id="theme-icon"></i>
                         </button>
                     </li>
@@ -98,14 +120,14 @@
                             <span class="d-none d-md-inline">@User.Identity?.Name</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="/Profile"><i class="bi bi-person me-2"></i>Profile</a></li>
-                            <li><a class="dropdown-item" href="/Settings"><i class="bi bi-gear me-2"></i>Settings</a></li>
+                            <li><a class="dropdown-item" href="/Profile"><i class="bi bi-person me-2"></i>@Localizer["Profile"]</a></li>
+                            <li><a class="dropdown-item" href="/Settings"><i class="bi bi-gear me-2"></i>@Localizer["Settings"]</a></li>
                             <li><hr class="dropdown-divider" /></li>
                             <li>
                                 <form method="post" action="/Account/Logout">
                                     @Html.AntiForgeryToken()
                                     <button type="submit" class="dropdown-item text-danger">
-                                        <i class="bi bi-box-arrow-right me-2"></i>Sign Out
+                                        <i class="bi bi-box-arrow-right me-2"></i>@Localizer["Sign Out"]
                                     </button>
                                 </form>
                             </li>
@@ -181,6 +203,13 @@
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@7.0.5/dist/browser/signalr.min.js"></script>
+    <script>
+        window.appTexts = @Html.Raw(JsonSerializer.Serialize(appTexts));
+        window.formatAppText = function (key, ...args) {
+            const template = (window.appTexts && window.appTexts[key]) || key;
+            return template.replace(/\{(\d+)\}/g, (_, index) => args[Number(index)] ?? '');
+        };
+    </script>
     <script src="~/js/pos.js" asp-append-version="true"></script>
     @RenderSection("Scripts", required: false)
 </body>
