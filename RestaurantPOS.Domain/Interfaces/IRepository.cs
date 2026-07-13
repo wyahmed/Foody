@@ -30,4 +30,14 @@ public interface IUnitOfWork : IDisposable
     Task BeginTransactionAsync(CancellationToken cancellationToken = default);
     Task CommitTransactionAsync(CancellationToken cancellationToken = default);
     Task RollbackTransactionAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Executes <paramref name="operation"/> inside a database transaction wrapped by the
+    /// configured execution strategy so that retrying execution strategies (e.g.
+    /// <c>SqlServerRetryingExecutionStrategy</c>) work correctly with user-initiated transactions.
+    /// </summary>
+    Task ExecuteInTransactionAsync(Func<CancellationToken, Task> operation, CancellationToken cancellationToken = default);
+
+    /// <inheritdoc cref="ExecuteInTransactionAsync(Func{CancellationToken,Task},CancellationToken)"/>
+    Task<TResult> ExecuteInTransactionAsync<TResult>(Func<CancellationToken, Task<TResult>> operation, CancellationToken cancellationToken = default);
 }

@@ -53,6 +53,45 @@ public class UnitOfWork : IUnitOfWork
         _transaction = null;
     }
 
+    public async Task ExecuteInTransactionAsync(Func<CancellationToken, Task> operation, CancellationToken cancellationToken = default)
+    {
+        var strategy = _context.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async ct =>
+        {
+            await using var tx = await _context.Database.BeginTransactionAsync(ct);
+            try
+            {
+                await operation(ct);
+                await tx.CommitAsync(ct);
+            }
+            catch
+            {
+                await tx.RollbackAsync(ct);
+                throw;
+            }
+        }, cancellationToken);
+    }
+
+    public async Task<TResult> ExecuteInTransactionAsync<TResult>(Func<CancellationToken, Task<TResult>> operation, CancellationToken cancellationToken = default)
+    {
+        var strategy = _context.Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync(async ct =>
+        {
+            await using var tx = await _context.Database.BeginTransactionAsync(ct);
+            try
+            {
+                var result = await operation(ct);
+                await tx.CommitAsync(ct);
+                return result;
+            }
+            catch
+            {
+                await tx.RollbackAsync(ct);
+                throw;
+            }
+        }, cancellationToken);
+    }
+
     public void Dispose()
     {
         if (_disposed) return;
