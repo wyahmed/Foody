@@ -1,5 +1,6 @@
 @page "/POS"
 @model RestaurantPOS.Web.Pages.POS.IndexModel
+@using System.Globalization
 @{
     ViewData["Title"] = "POS";
     Layout = "_Layout";
@@ -150,7 +151,7 @@
                     @foreach (var product in Model.Products)
                     {
                         <button class="pos-product-btn"
-                                onclick="addToOrder('@product.Id', '@product.Name.Replace("'","\\'")', @product.SellingPrice, @product.TaxRate)"
+                                onclick="addToOrder('@product.Id', '@product.Name.Replace("'","\\'")', @product.SellingPrice.ToString("F4", CultureInfo.InvariantCulture), @product.TaxRate.ToString("F4", CultureInfo.InvariantCulture))"
                                 data-category="@product.CategoryId"
                                 data-barcode="@product.Barcode"
                                 data-name="@product.Name.ToLower()">
@@ -530,6 +531,19 @@ document.querySelectorAll('input[name=orderType]').forEach(r => r.addEventListen
     orderType = r.value;
     document.getElementById('tableSelect').closest('.w-auto').style.display = r.value === 'DineIn' ? '' : 'none';
 }));
+
+// --- Stub handlers for toolbar buttons ---
+function openShift() { showToast('Shift management coming soon', 'info'); }
+function voidOrder() {
+    if (orderItems.length === 0) { showToast('No items to void', 'warning'); return; }
+    if (confirm('Void the entire order?')) { clearOrder(); showToast('Order voided', 'danger'); }
+}
+function showSplitPayment() { showToast('Split payment coming soon', 'info'); }
+function confirmModifiers() {
+    bootstrap.Modal.getInstance(document.getElementById('modifierModal'))?.hide();
+    if (pendingProduct) addToOrder(pendingProduct.id, pendingProduct.name, pendingProduct.price, pendingProduct.taxRate);
+    pendingProduct = null;
+}
 
 // Init SignalR
 connectSignalR('@Model.BranchId');
