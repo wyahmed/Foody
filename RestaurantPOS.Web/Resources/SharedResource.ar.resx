@@ -576,6 +576,9 @@
   <data name="Pending" xml:space="preserve">
     <value>قيد الانتظار</value>
   </data>
+  <data name="Phase 2" xml:space="preserve">
+    <value>المرحلة الثانية</value>
+  </data>
   <data name="Personal Information" xml:space="preserve">
     <value>المعلومات الشخصية</value>
   </data>
