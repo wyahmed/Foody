@@ -61,10 +61,9 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Res
 
     public async Task<Result<Guid>> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
     {
-        await _unitOfWork.BeginTransactionAsync(cancellationToken);
-        try
+        return await _unitOfWork.ExecuteInTransactionAsync<Result<Guid>>(async ct =>
         {
-            var orderNumber = await _numberGenerator.GenerateOrderNumberAsync(request.BranchId, cancellationToken);
+            var orderNumber = await _numberGenerator.GenerateOrderNumberAsync(request.BranchId, ct);
 
             var order = new Domain.Entities.Order
             {
@@ -90,7 +89,7 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Res
 
             foreach (var itemRequest in request.Items)
             {
-                var product = await productRepo.GetByIdAsync(itemRequest.ProductId, cancellationToken);
+                var product = await productRepo.GetByIdAsync(itemRequest.ProductId, ct);
                 if (product is null)
                     return Result<Guid>.Failure($"Product {itemRequest.ProductId} not found.");
 
@@ -99,7 +98,7 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Res
                 if (product.TaxRateId.HasValue)
                 {
                     var taxRateRepo = _unitOfWork.Repository<Domain.Entities.TaxRate>();
-                    var taxRateEntity = await taxRateRepo.GetByIdAsync(product.TaxRateId.Value, cancellationToken);
+                    var taxRateEntity = await taxRateRepo.GetByIdAsync(product.TaxRateId.Value, ct);
                     taxRateValue = taxRateEntity?.Rate ?? 0;
                 }
 
@@ -125,7 +124,7 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Res
                     var modifierRepo = _unitOfWork.Repository<Domain.Entities.Modifier>();
                     foreach (var mod in itemRequest.Modifiers)
                     {
-                        var modifier = await modifierRepo.GetByIdAsync(mod.ModifierId, cancellationToken);
+                        var modifier = await modifierRepo.GetByIdAsync(mod.ModifierId, ct);
                         if (modifier is not null)
                         {
                             orderItem.Modifiers.Add(new Domain.Entities.OrderItemModifier
@@ -159,7 +158,7 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Res
             {
                 var couponRepo = _unitOfWork.Repository<Domain.Entities.Coupon>();
                 var coupon = await couponRepo.FirstOrDefaultAsync(
-                    c => c.Code == request.CouponCode && c.IsActive, cancellationToken);
+                    c => c.Code == request.CouponCode && c.IsActive, ct);
                 if (coupon is not null)
                 {
                     discountAmount = coupon.DiscountType == DiscountType.Percentage
@@ -180,22 +179,22 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Res
             var shiftRepo = _unitOfWork.Repository<Domain.Entities.Shift>();
             var shift = await shiftRepo.FirstOrDefaultAsync(
                 s => s.BranchId == request.BranchId && s.Status == ShiftStatus.Open
-                     && s.CashierId == _currentUser.UserId, cancellationToken);
+                     && s.CashierId == _currentUser.UserId, ct);
             if (shift is not null) order.ShiftId = shift.Id;
 
-            await _unitOfWork.Repository<Domain.Entities.Order>().AddAsync(order, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.Repository<Domain.Entities.Order>().AddAsync(order, ct);
+            await _unitOfWork.SaveChangesAsync(ct);
 
             // Update table status
             if (request.TableId.HasValue && request.OrderType == OrderType.DineIn)
             {
                 var tableRepo = _unitOfWork.Repository<Domain.Entities.DiningTable>();
-                var table = await tableRepo.GetByIdAsync(request.TableId.Value, cancellationToken);
+                var table = await tableRepo.GetByIdAsync(request.TableId.Value, ct);
                 if (table is not null)
                 {
                     table.Status = TableStatus.Occupied;
                     tableRepo.Update(table);
-                    await _unitOfWork.SaveChangesAsync(cancellationToken);
+                    await _unitOfWork.SaveChangesAsync(ct);
                 }
             }
 
@@ -207,25 +206,18 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Res
                 OrderNumber = order.OrderNumber,
                 Status = KitchenOrderStatus.New
             };
-            await _unitOfWork.Repository<Domain.Entities.KitchenOrder>().AddAsync(kitchenOrder, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.Repository<Domain.Entities.KitchenOrder>().AddAsync(kitchenOrder, ct);
+            await _unitOfWork.SaveChangesAsync(ct);
 
-            await _unitOfWork.CommitTransactionAsync(cancellationToken);
-
-            // Notify kitchen via SignalR
-            await _notifications.SendToBranchAsync(
+            // Notify kitchen via SignalR (after transaction commits — fire-and-forget outside)
+            _ = _notifications.SendToBranchAsync(
                 request.BranchId.ToString(),
                 "NewOrder",
                 new { OrderId = order.Id, OrderNumber = order.OrderNumber, OrderType = order.OrderType.ToString() },
-                cancellationToken);
+                ct);
 
             return Result<Guid>.Success(order.Id);
-        }
-        catch (Exception)
-        {
-            await _unitOfWork.RollbackTransactionAsync(cancellationToken);
-            throw;
-        }
+        }, cancellationToken);
     }
 }
 
@@ -324,16 +316,15 @@ public class ProcessPaymentCommandHandler : IRequestHandler<ProcessPaymentComman
 
     public async Task<Result<Guid>> Handle(ProcessPaymentCommand request, CancellationToken cancellationToken)
     {
-        await _unitOfWork.BeginTransactionAsync(cancellationToken);
-        try
+        return await _unitOfWork.ExecuteInTransactionAsync<Result<Guid>>(async ct =>
         {
             var orderRepo = _unitOfWork.Repository<Domain.Entities.Order>();
-            var order = await orderRepo.GetByIdAsync(request.OrderId, cancellationToken);
+            var order = await orderRepo.GetByIdAsync(request.OrderId, ct);
             if (order is null) return Result<Guid>.Failure("Order not found.");
 
             // Explicitly load order items since GetByIdAsync does not load navigations
             var orderItemRepo = _unitOfWork.Repository<Domain.Entities.OrderItem>();
-            var orderItems = await orderItemRepo.FindAsync(i => i.OrderId == request.OrderId, cancellationToken);
+            var orderItems = await orderItemRepo.FindAsync(i => i.OrderId == request.OrderId, ct);
             if (order.PaymentStatus == PaymentStatus.Paid)
                 return Result<Guid>.Failure("Order is already paid.");
 
@@ -351,7 +342,7 @@ public class ProcessPaymentCommandHandler : IRequestHandler<ProcessPaymentComman
                     Amount = p.Amount,
                     Reference = p.Reference,
                     CardLast4 = p.CardLast4
-                }, cancellationToken);
+                }, ct);
             }
 
             order.PaidAmount = totalPaid;
@@ -361,10 +352,10 @@ public class ProcessPaymentCommandHandler : IRequestHandler<ProcessPaymentComman
             order.CompletedAt = DateTime.UtcNow;
             orderRepo.Update(order);
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.SaveChangesAsync(ct);
 
             // Generate invoice
-            var invoiceNumber = await _numberGenerator.GenerateInvoiceNumberAsync(order.BranchId, cancellationToken);
+            var invoiceNumber = await _numberGenerator.GenerateInvoiceNumberAsync(order.BranchId, ct);
             var invoice = new Domain.Entities.Invoice
             {
                 OrderId = order.Id,
@@ -400,29 +391,23 @@ public class ProcessPaymentCommandHandler : IRequestHandler<ProcessPaymentComman
                 });
             }
 
-            await _unitOfWork.Repository<Domain.Entities.Invoice>().AddAsync(invoice, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.Repository<Domain.Entities.Invoice>().AddAsync(invoice, ct);
+            await _unitOfWork.SaveChangesAsync(ct);
 
             // Free up the table
             if (order.TableId.HasValue)
             {
                 var tableRepo = _unitOfWork.Repository<Domain.Entities.DiningTable>();
-                var table = await tableRepo.GetByIdAsync(order.TableId.Value, cancellationToken);
+                var table = await tableRepo.GetByIdAsync(order.TableId.Value, ct);
                 if (table is not null)
                 {
                     table.Status = TableStatus.Available;
                     tableRepo.Update(table);
-                    await _unitOfWork.SaveChangesAsync(cancellationToken);
+                    await _unitOfWork.SaveChangesAsync(ct);
                 }
             }
 
-            await _unitOfWork.CommitTransactionAsync(cancellationToken);
             return Result<Guid>.Success(invoice.Id);
-        }
-        catch (Exception)
-        {
-            await _unitOfWork.RollbackTransactionAsync(cancellationToken);
-            throw;
-        }
+        }, cancellationToken);
     }
 }
