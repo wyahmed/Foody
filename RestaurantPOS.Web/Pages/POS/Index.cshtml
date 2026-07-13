@@ -1,12 +1,30 @@
 @page "/POS"
 @model RestaurantPOS.Web.Pages.POS.IndexModel
 @using System.Globalization
+@using System.Text.Json
 @using System.Text.Encodings.Web
 @{
     ViewData["Title"] = "POS";
     Layout = "_Layout";
     var currentLang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var isArabic = currentLang == "ar";
+    var posTexts = new Dictionary<string, string>
+    {
+        ["productNotFound"] = isArabic ? "المنتج غير موجود: {0}" : "Product not found: {0}",
+        ["addItemsBeforePayment"] = isArabic ? "أضف عناصر قبل الدفع" : "Add items before payment",
+        ["insufficientCash"] = isArabic ? "المبلغ المدفوع أقل من إجمالي الطلب." : "Tendered amount is less than the order total.",
+        ["failedToSaveOrder"] = isArabic ? "فشل حفظ الطلب" : "Failed to save order",
+        ["paymentSuccessful"] = isArabic ? "تمت عملية الدفع بنجاح!" : "Payment successful!",
+        ["networkError"] = isArabic ? "خطأ في الشبكة: " : "Network error: ",
+        ["couponApplied"] = isArabic ? "تم تطبيق الكوبون: -" : "Coupon applied: -",
+        ["invalidCouponCode"] = isArabic ? "رمز كوبون غير صحيح" : "Invalid coupon code",
+        ["clearAllItems"] = isArabic ? "مسح جميع العناصر؟" : "Clear all items?",
+        ["shiftManagementComingSoon"] = isArabic ? "إدارة الوردية قريباً" : "Shift management coming soon",
+        ["noItemsToVoid"] = isArabic ? "لا توجد عناصر للإلغاء" : "No items to void",
+        ["voidEntireOrder"] = isArabic ? "إلغاء الطلب بالكامل؟" : "Void the entire order?",
+        ["orderVoided"] = isArabic ? "تم إلغاء الطلب" : "Order voided",
+        ["splitPaymentComingSoon"] = isArabic ? "الدفع المقسم قريباً" : "Split payment coming soon"
+    };
 }
 
 @section Styles {
@@ -70,7 +88,7 @@
     </style>
 }
 
-<div class="pos-screen" id="pos-app">
+<div class="pos-screen" id="pos-app" dir="@(isArabic ? "rtl" : "ltr")">
     <form id="antiForgeryForm" class="d-none">
         @Html.AntiForgeryToken()
     </form>
@@ -94,13 +112,20 @@
         </div>
 
         <!-- Table selector (only for Dine-In) -->
-        <select class="form-select form-select-sm w-auto" id="tableSelect">
-            <option value="">@(isArabic ? "اختر طاولة" : "Select Table")</option>
-            @foreach (var table in Model.Tables)
-            {
-                <option value="@table.Id" data-status="@table.Status">@table.Name (@table.Status)</option>
-            }
-        </select>
+        <div id="tableSelectGroup">
+            <select class="form-select form-select-sm w-auto" id="tableSelect">
+                <option value="">@(isArabic ? "اختر طاولة" : "Select Table")</option>
+                @foreach (var table in Model.Tables)
+                {
+                    <option value="@table.Id" data-status="@table.Status">@table.Name (@Localizer[table.Status])</option>
+                }
+            </select>
+        </div>
+
+        <div class="input-group input-group-sm d-none" id="deliveryAddressGroup" style="max-width:260px">
+            <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+            <input type="text" class="form-control" id="deliveryAddress" placeholder="@(isArabic ? "عنوان التوصيل" : "Delivery address")" />
+        </div>
 
         <!-- Customer search -->
         <div class="input-group input-group-sm" style="max-width:200px">
@@ -327,6 +352,9 @@
 
 @section Scripts {
 <script>
+const posTexts = @Html.Raw(JsonSerializer.Serialize(posTexts));
+const posText = (key, ...args) => (posTexts[key] || key).replace(/\{(\d+)\}/g, (_, index) => args[Number(index)] ?? '');
+
 // POS State
 let orderItems = [];
 let orderType = '@Model.SelectedOrderType';
@@ -396,7 +424,7 @@ function removeItem(idx) {
 }
 
 function clearOrder() {
-    if (orderItems.length > 0 && !confirm('Clear all items?')) return;
+    if (orderItems.length > 0 && !confirm(posText('clearAllItems'))) return;
     orderItems = [];
     couponData = null;
     renderOrder();
@@ -455,13 +483,13 @@ window.addEventListener('barcodeScanned', e => {
     const barcode = e.detail.barcode;
     const el = document.querySelector(`[data-barcode="${barcode}"]`);
     if (el) el.click();
-    else showToast(`Product not found: ${barcode}`, 'warning');
+    else showToast(posText('productNotFound', barcode), 'warning');
 });
 
 // --- Payment ---
 let paymentMethod = 'Cash';
 function processPayment(method) {
-    if (orderItems.length === 0) { showToast('Add items before payment', 'warning'); return; }
+    if (orderItems.length === 0) { showToast(posText('addItemsBeforePayment'), 'warning'); return; }
     paymentMethod = method;
     const total = parseFloat(document.getElementById('total').textContent);
     document.getElementById('payTotal').textContent = total.toFixed(2) + ' SAR';
@@ -487,11 +515,16 @@ async function confirmPayment() {
     if (orderItems.length === 0) return;
     const total = parseFloat(document.getElementById('total').textContent);
     const tendered = parseFloat(document.getElementById('cashTendered').value) || total;
+    if (paymentMethod === 'Cash' && tendered < total) {
+        showToast(posText('insufficientCash'), 'warning');
+        return;
+    }
     const token = document.querySelector('#antiForgeryForm input[name="__RequestVerificationToken"]')?.value;
 
     const payload = {
         orderType: document.querySelector('input[name=orderType]:checked')?.value || 'DineIn',
         tableId: document.getElementById('tableSelect').value || null,
+        deliveryAddress: document.getElementById('deliveryAddress').value.trim() || null,
         notes: null,
         numberOfGuests: 1,
         items: orderItems.map(i => ({
@@ -517,15 +550,15 @@ async function confirmPayment() {
         });
         if (!checkoutResp.ok) {
             const error = await checkoutResp.json().catch(() => null);
-            showToast(error?.error || 'Failed to save order', 'danger');
+            showToast(error?.error || posText('failedToSaveOrder'), 'danger');
             return;
         }
 
         bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide();
-        showToast('Payment successful!', 'success');
+        showToast(posText('paymentSuccessful'), 'success');
         clearOrder();
     } catch (err) {
-        showToast('Network error: ' + err.message, 'danger');
+        showToast(posText('networkError') + err.message, 'danger');
     }
 }
 
@@ -535,26 +568,28 @@ async function applyCoupon() {
     const resp = await fetch(`/api/coupons/validate?code=${encodeURIComponent(code)}`);
     if (resp.ok) {
         couponData = await resp.json();
-        showToast(`Coupon applied: -${couponData.amount.toFixed(2)} SAR`, 'success');
+        showToast(`${posText('couponApplied')}${couponData.amount.toFixed(2)} SAR`, 'success');
         recalculate();
     } else {
-        showToast('Invalid coupon code', 'danger');
+        showToast(posText('invalidCouponCode'), 'danger');
     }
 }
 
 // Order type change
 document.querySelectorAll('input[name=orderType]').forEach(r => r.addEventListener('change', () => {
     orderType = r.value;
-    document.getElementById('tableSelect').closest('.w-auto').style.display = r.value === 'DineIn' ? '' : 'none';
+    document.getElementById('tableSelectGroup').classList.toggle('d-none', r.value !== 'DineIn');
+    document.getElementById('deliveryAddressGroup').classList.toggle('d-none', r.value !== 'Delivery');
+    if (r.value !== 'Delivery') document.getElementById('deliveryAddress').value = '';
 }));
 
 // --- Stub handlers for toolbar buttons ---
-function openShift() { showToast('Shift management coming soon', 'info'); }
+function openShift() { showToast(posText('shiftManagementComingSoon'), 'info'); }
 function voidOrder() {
-    if (orderItems.length === 0) { showToast('No items to void', 'warning'); return; }
-    if (confirm('Void the entire order?')) { clearOrder(); showToast('Order voided', 'danger'); }
+    if (orderItems.length === 0) { showToast(posText('noItemsToVoid'), 'warning'); return; }
+    if (confirm(posText('voidEntireOrder'))) { clearOrder(); showToast(posText('orderVoided'), 'danger'); }
 }
-function showSplitPayment() { showToast('Split payment coming soon', 'info'); }
+function showSplitPayment() { showToast(posText('splitPaymentComingSoon'), 'info'); }
 function confirmModifiers() {
     bootstrap.Modal.getInstance(document.getElementById('modifierModal'))?.hide();
     if (pendingProduct) addToOrder(pendingProduct.id, pendingProduct.name, pendingProduct.price, pendingProduct.taxRate);

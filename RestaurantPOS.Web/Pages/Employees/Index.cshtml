@@ -1,18 +1,18 @@
 @page "/Employees"
 @model RestaurantPOS.Web.Pages.Employees.IndexModel
 @{
-    ViewData["Title"] = "Employees";
+    ViewData["Title"] = Localizer["Employees"];
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h4 class="fw-bold mb-1">
-            <i class="bi bi-person-badge text-success me-2"></i>Employees
+            <i class="bi bi-person-badge text-success me-2"></i>@Localizer["Employees"]
         </h4>
-        <small class="text-muted">Manage your restaurant staff</small>
+        <small class="text-muted">@Localizer["Manage your restaurant staff"]</small>
     </div>
     <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#inviteModal">
-        <i class="bi bi-person-plus me-1"></i>Invite Employee
+        <i class="bi bi-person-plus me-1"></i>@Localizer["Invite Employee"]
     </button>
 </div>
 
@@ -22,11 +22,11 @@
         <form method="get" class="row g-2">
             <div class="col-md-5">
                 <input type="text" name="search" value="@Model.Search"
-                       class="form-control" placeholder="Search name, email, code..." />
+                       class="form-control" placeholder="@Localizer["Search name, email, code..."]" />
             </div>
             <div class="col-md-3">
                 <select name="role" class="form-select">
-                    <option value="">All Roles</option>
+                    <option value="">@Localizer["All Roles"]</option>
                     @foreach (var r in Model.Roles)
                     {
                         <option value="@r" selected="@(Model.RoleFilter == r)">@r</option>
@@ -35,11 +35,11 @@
             </div>
             <div class="col-auto">
                 <button type="submit" class="btn btn-outline-secondary">
-                    <i class="bi bi-search me-1"></i>Search
+                    <i class="bi bi-search me-1"></i>@Localizer["Search"]
                 </button>
                 @if (!string.IsNullOrEmpty(Model.Search) || !string.IsNullOrEmpty(Model.RoleFilter))
                 {
-                    <a href="/Employees" class="btn btn-link">Clear</a>
+                    <a href="/Employees" class="btn btn-link">@Localizer["Clear"]</a>
                 }
             </div>
         </form>
@@ -52,13 +52,13 @@
             <table class="table table-hover mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th class="ps-3">Employee</th>
-                        <th>Code</th>
-                        <th>Email</th>
-                        <th>Branch</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th>Last Login</th>
+                        <th class="ps-3">@Localizer["Employee"]</th>
+                        <th>@Localizer["Code"]</th>
+                        <th>@Localizer["Email"]</th>
+                        <th>@Localizer["Branch"]</th>
+                        <th>@Localizer["Role"]</th>
+                        <th>@Localizer["Status"]</th>
+                        <th>@Localizer["Last Login"]</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -78,7 +78,7 @@
                             </td>
                             <td><span class="badge bg-secondary">@(emp.EmployeeCode ?? "—")</span></td>
                             <td class="text-muted small">@emp.Email</td>
-                            <td class="text-muted small">@(emp.BranchName ?? "All Branches")</td>
+                            <td class="text-muted small">@(emp.BranchName ?? Localizer["All Branches"])</td>
                             <td>
                                 @foreach (var role in emp.Roles)
                                 {
@@ -87,11 +87,11 @@
                             </td>
                             <td>
                                 <span class="badge @(emp.IsActive ? "bg-success" : "bg-danger")">
-                                    @(emp.IsActive ? "Active" : "Inactive")
+                                    @(emp.IsActive ? Localizer["Active"] : Localizer["Inactive"])
                                 </span>
                             </td>
                             <td class="text-muted small">
-                                @(emp.LastLoginDate.HasValue ? emp.LastLoginDate.Value.ToString("dd MMM yyyy HH:mm") : "Never")
+                                @(emp.LastLoginDate.HasValue ? emp.LastLoginDate.Value.ToString("dd MMM yyyy HH:mm") : Localizer["Never"])
                             </td>
                         </tr>
                     }
@@ -100,7 +100,7 @@
                         <tr>
                             <td colspan="7" class="text-center text-muted py-5">
                                 <i class="bi bi-people d-block fs-1 mb-2"></i>
-                                No employees found
+                                @Localizer["No employees found"]
                             </td>
                         </tr>
                     }
@@ -130,18 +130,18 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>Invite Employee</h5>
+                <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>@Localizer["Invite Employee"]</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="alert alert-info">
                     <i class="bi bi-info-circle me-2"></i>
-                    Employee accounts are managed through the Account Management system.
-                    Contact your system administrator to add new user accounts.
+                    @Localizer["Employee accounts are managed through the Account Management system."]
+                    @Localizer["Contact your system administrator to add new user accounts."]
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Close"]</button>
             </div>
         </div>
     </div>

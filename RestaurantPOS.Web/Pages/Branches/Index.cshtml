@@ -1,18 +1,18 @@
 @page "/Branches"
 @model RestaurantPOS.Web.Pages.Branches.IndexModel
 @{
-    ViewData["Title"] = "Branches";
+    ViewData["Title"] = Localizer["Branches"];
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h4 class="fw-bold mb-1">
-            <i class="bi bi-building text-success me-2"></i>Branches
+            <i class="bi bi-building text-success me-2"></i>@Localizer["Branches"]
         </h4>
-        <small class="text-muted">Manage your restaurant branches</small>
+        <small class="text-muted">@Localizer["Manage your restaurant branches"]</small>
     </div>
     <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addBranchModal">
-        <i class="bi bi-plus-circle me-1"></i>Add Branch
+        <i class="bi bi-plus-circle me-1"></i>@Localizer["Add Branch"]
     </button>
 </div>
 
@@ -40,11 +40,11 @@
                             <div class="text-muted small">@branch.NameAr</div>
                         </div>
                         <span class="badge ms-auto @(branch.IsActive ? "bg-success" : "bg-secondary")">
-                            @(branch.IsActive ? "Active" : "Inactive")
+                            @(branch.IsActive ? Localizer["Active"] : Localizer["Inactive"])
                         </span>
                     </div>
                     <div class="small text-muted mb-1">
-                        <i class="bi bi-geo-alt me-1"></i>@(branch.City ?? "—"), @(branch.Address ?? "No address")
+                        <i class="bi bi-geo-alt me-1"></i>@(branch.City ?? "—"), @(branch.Address ?? Localizer["No address"])
                     </div>
                     <div class="small text-muted mb-1">
                         <i class="bi bi-telephone me-1"></i>@(branch.Phone ?? "—")
@@ -56,7 +56,7 @@
                 <div class="card-footer bg-transparent d-flex gap-2">
                     <button class="btn btn-outline-secondary btn-sm flex-grow-1"
                             onclick="editBranch('@branch.Id', '@branch.Name.Replace("'", "\\'")', '@(branch.NameAr?.Replace("'", "\\'"))', '@(branch.City ?? "")', '@(branch.Address ?? "")', '@(branch.Phone ?? "")')">
-                        <i class="bi bi-pencil me-1"></i>Edit
+                    <i class="bi bi-pencil me-1"></i>@Localizer["Edit"]
                     </button>
                 </div>
             </div>
@@ -68,9 +68,9 @@
             <div class="card pos-card">
                 <div class="card-body text-center py-5">
                     <i class="bi bi-building fs-1 text-muted d-block mb-3"></i>
-                    <p class="text-muted">No branches found. Add your first branch to get started.</p>
+                    <p class="text-muted">@Localizer["No branches found. Add your first branch to get started."]</p>
                     <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addBranchModal">
-                        <i class="bi bi-plus-circle me-1"></i>Add Branch
+                        <i class="bi bi-plus-circle me-1"></i>@Localizer["Add Branch"]
                     </button>
                 </div>
             </div>
@@ -85,47 +85,47 @@
             <form method="post" asp-page-handler="Create">
                 @Html.AntiForgeryToken()
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-building me-2"></i>Add Branch</h5>
+                    <h5 class="modal-title"><i class="bi bi-building me-2"></i>@Localizer["Add Branch"]</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Branch Name (EN) <span class="text-danger">*</span></label>
+                        <label class="form-label">@Localizer["Branch Name (EN)"] <span class="text-danger">*</span></label>
                         <input type="text" name="Name" class="form-control" required />
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Branch Name (AR)</label>
+                        <label class="form-label">@Localizer["Branch Name (AR)"]</label>
                         <input type="text" name="NameAr" class="form-control" dir="rtl" />
                     </div>
                     <div class="row g-3">
                         <div class="col-6">
-                            <label class="form-label">City</label>
+                            <label class="form-label">@Localizer["City"]</label>
                             <input type="text" name="City" class="form-control" />
                         </div>
                         <div class="col-6">
-                            <label class="form-label">Phone</label>
+                            <label class="form-label">@Localizer["Phone"]</label>
                             <input type="text" name="Phone" class="form-control" />
                         </div>
                     </div>
                     <div class="mb-3 mt-3">
-                        <label class="form-label">Address</label>
+                        <label class="form-label">@Localizer["Address"]</label>
                         <input type="text" name="Address" class="form-control" />
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Branch Type</label>
+                        <label class="form-label">@Localizer["Branch Type"]</label>
                         <select name="BranchType" class="form-select">
-                            <option value="Restaurant">Restaurant</option>
-                            <option value="CoffeeShop">Coffee Shop</option>
-                            <option value="Bakery">Bakery</option>
-                            <option value="FastFood">Fast Food</option>
-                            <option value="Grocery">Grocery</option>
+                            <option value="Restaurant">@Localizer["Restaurant"]</option>
+                            <option value="CoffeeShop">@Localizer["Coffee Shop"]</option>
+                            <option value="Bakery">@Localizer["Bakery"]</option>
+                            <option value="FastFood">@Localizer["Fast Food"]</option>
+                            <option value="Grocery">@Localizer["Grocery"]</option>
                         </select>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Cancel"]</button>
                     <button type="submit" class="btn btn-success">
-                        <i class="bi bi-check-lg me-1"></i>Save Branch
+                        <i class="bi bi-check-lg me-1"></i>@Localizer["Save Branch"]
                     </button>
                 </div>
             </form>
@@ -141,37 +141,37 @@
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="Id" id="editId" />
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Edit Branch</h5>
+                    <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>@Localizer["Edit Branch"]</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Branch Name (EN) <span class="text-danger">*</span></label>
+                        <label class="form-label">@Localizer["Branch Name (EN)"] <span class="text-danger">*</span></label>
                         <input type="text" name="Name" id="editName" class="form-control" required />
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Branch Name (AR)</label>
+                        <label class="form-label">@Localizer["Branch Name (AR)"]</label>
                         <input type="text" name="NameAr" id="editNameAr" class="form-control" dir="rtl" />
                     </div>
                     <div class="row g-3">
                         <div class="col-6">
-                            <label class="form-label">City</label>
+                            <label class="form-label">@Localizer["City"]</label>
                             <input type="text" name="City" id="editCity" class="form-control" />
                         </div>
                         <div class="col-6">
-                            <label class="form-label">Phone</label>
+                            <label class="form-label">@Localizer["Phone"]</label>
                             <input type="text" name="Phone" id="editPhone" class="form-control" />
                         </div>
                     </div>
                     <div class="mb-3 mt-3">
-                        <label class="form-label">Address</label>
+                        <label class="form-label">@Localizer["Address"]</label>
                         <input type="text" name="Address" id="editAddress" class="form-control" />
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Cancel"]</button>
                     <button type="submit" class="btn btn-success">
-                        <i class="bi bi-check-lg me-1"></i>Update Branch
+                        <i class="bi bi-check-lg me-1"></i>@Localizer["Update Branch"]
                     </button>
                 </div>
             </form>
