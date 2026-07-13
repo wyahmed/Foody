@@ -94,6 +94,15 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Res
                 if (product is null)
                     return Result<Guid>.Failure($"Product {itemRequest.ProductId} not found.");
 
+                // Load TaxRate separately since GetByIdAsync (FindAsync) does not load navigations
+                decimal taxRateValue = 0;
+                if (product.TaxRateId.HasValue)
+                {
+                    var taxRateRepo = _unitOfWork.Repository<Domain.Entities.TaxRate>();
+                    var taxRateEntity = await taxRateRepo.GetByIdAsync(product.TaxRateId.Value, cancellationToken);
+                    taxRateValue = taxRateEntity?.Rate ?? 0;
+                }
+
                 var unitPrice = product.SellingPrice;
                 decimal modifierTotal = 0;
 
@@ -132,7 +141,7 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Res
                 }
 
                 var lineTotal = (unitPrice + modifierTotal) * itemRequest.Quantity;
-                var taxRate = product.TaxRate?.Rate ?? 0;
+                var taxRate = taxRateValue;
                 var taxAmount = lineTotal * (taxRate / 100);
 
                 orderItem.TaxRate = taxRate;
@@ -321,6 +330,10 @@ public class ProcessPaymentCommandHandler : IRequestHandler<ProcessPaymentComman
             var orderRepo = _unitOfWork.Repository<Domain.Entities.Order>();
             var order = await orderRepo.GetByIdAsync(request.OrderId, cancellationToken);
             if (order is null) return Result<Guid>.Failure("Order not found.");
+
+            // Explicitly load order items since GetByIdAsync does not load navigations
+            var orderItemRepo = _unitOfWork.Repository<Domain.Entities.OrderItem>();
+            var orderItems = await orderItemRepo.FindAsync(i => i.OrderId == request.OrderId, cancellationToken);
             if (order.PaymentStatus == PaymentStatus.Paid)
                 return Result<Guid>.Failure("Order is already paid.");
 
@@ -370,7 +383,7 @@ public class ProcessPaymentCommandHandler : IRequestHandler<ProcessPaymentComman
             };
 
             // Copy items to invoice snapshot
-            foreach (var item in order.Items.Where(i => !i.IsVoid))
+            foreach (var item in orderItems.Where(i => !i.IsVoid))
             {
                 invoice.Items.Add(new Domain.Entities.InvoiceItem
                 {
