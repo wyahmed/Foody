@@ -123,21 +123,21 @@
             <div class="p-3">
                 <ul class="nav flex-column gap-1">
                     @{
-                        var nav = new (string Href, string Icon, string Label)[]
+                        var nav = new (string Href, string Icon, string Label, string LabelAr)[]
                         {
-                            ("/Dashboard", "bi-speedometer2", "Dashboard"),
-                            ("/POS", "bi-bag-plus-fill", "POS"),
-                            ("/Orders", "bi-receipt-cutoff", "Orders"),
-                            ("/Kitchen", "bi-fire", "Kitchen"),
-                            ("/Tables", "bi-layout-three-columns", "Tables"),
-                            ("/Categories", "bi-tags", "Categories"),
-                            ("/Products", "bi-box-seam", "Products"),
-                            ("/Inventory", "bi-boxes", "Inventory"),
-                            ("/Customers", "bi-people-fill", "Customers"),
-                            ("/Reports", "bi-bar-chart-fill", "Reports"),
-                            ("/Branches", "bi-building", "Branches"),
-                            ("/Employees", "bi-person-badge", "Employees"),
-                            ("/Settings", "bi-gear-fill", "Settings"),
+                            ("/Dashboard", "bi-speedometer2", "Dashboard", "لوحة التحكم"),
+                            ("/POS", "bi-bag-plus-fill", "POS", "نقطة البيع"),
+                            ("/Orders", "bi-receipt-cutoff", "Orders", "الطلبات"),
+                            ("/Kitchen", "bi-fire", "Kitchen", "المطبخ"),
+                            ("/Tables", "bi-layout-three-columns", "Tables", "الطاولات"),
+                            ("/Categories", "bi-tags", "Categories", "الفئات"),
+                            ("/Products", "bi-box-seam", "Products", "المنتجات"),
+                            ("/Inventory", "bi-boxes", "Inventory", "المخزون"),
+                            ("/Customers", "bi-people-fill", "Customers", "العملاء"),
+                            ("/Reports", "bi-bar-chart-fill", "Reports", "التقارير"),
+                            ("/Branches", "bi-building", "Branches", "الفروع"),
+                            ("/Employees", "bi-person-badge", "Employees", "الموظفون"),
+                            ("/Settings", "bi-gear-fill", "Settings", "الإعدادات"),
                         };
                         var currentPath = Context.Request.Path.Value ?? "";
                     }
@@ -148,7 +148,7 @@
                             <a href="@item.Href"
                                class="nav-link d-flex align-items-center gap-2 rounded px-3 py-2 @(isActive ? "active" : "text-secondary")">
                                 <i class="bi @item.Icon"></i>
-                                <span>@item.Label</span>
+                                <span>@(isRtl ? item.LabelAr : item.Label)</span>
                             </a>
                         </li>
                     }
@@ -159,7 +159,7 @@
                             <a href="/Admin/Tenants"
                                class="nav-link d-flex align-items-center gap-2 rounded px-3 py-2 @(tenantsActive ? "active" : "text-secondary")">
                                 <i class="bi bi-buildings"></i>
-                                <span>Tenants</span>
+                                <span>@(isRtl ? "المستأجرون" : "Tenants")</span>
                             </a>
                         </li>
                     }
