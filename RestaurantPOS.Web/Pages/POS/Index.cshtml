@@ -79,19 +79,23 @@
     <div class="d-flex align-items-center gap-2 mb-3">
         <!-- Order type selector -->
         <div class="btn-group btn-group-sm" role="group">
-            @foreach (var type in new[] { ("DineIn", "bi-table", "Dine In"), ("TakeAway", "bi-bag", "Take Away"), ("Delivery", "bi-bicycle", "Delivery") })
+            @foreach (var type in new[] {
+                ("DineIn",   "bi-table",   "Dine In",  "تناول في المطعم"),
+                ("TakeAway", "bi-bag",     "Take Away","طلب خارجي"),
+                ("Delivery", "bi-bicycle", "Delivery", "توصيل")
+            })
             {
                 <input type="radio" class="btn-check" name="orderType" id="ot_@type.Item1"
                        value="@type.Item1" @(Model.SelectedOrderType == type.Item1 ? "checked" : "") />
                 <label class="btn btn-outline-secondary" for="ot_@type.Item1">
-                    <i class="bi @type.Item2 me-1"></i>@type.Item3
+                    <i class="bi @type.Item2 me-1"></i>@(isArabic ? type.Item4 : type.Item3)
                 </label>
             }
         </div>
 
         <!-- Table selector (only for Dine-In) -->
         <select class="form-select form-select-sm w-auto" id="tableSelect">
-            <option value="">Select Table</option>
+            <option value="">@(isArabic ? "اختر طاولة" : "Select Table")</option>
             @foreach (var table in Model.Tables)
             {
                 <option value="@table.Id" data-status="@table.Status">@table.Name (@table.Status)</option>
@@ -101,15 +105,15 @@
         <!-- Customer search -->
         <div class="input-group input-group-sm" style="max-width:200px">
             <span class="input-group-text"><i class="bi bi-person"></i></span>
-            <input type="text" class="form-control" id="customerSearch" placeholder="Customer..." />
+            <input type="text" class="form-control" id="customerSearch" placeholder="@(isArabic ? "العميل..." : "Customer...")" />
         </div>
 
         <div class="ms-auto d-flex gap-2">
             <button class="btn btn-outline-secondary btn-sm" onclick="openShift()">
-                <i class="bi bi-safe me-1"></i>Shift
+                <i class="bi bi-safe me-1"></i>@(isArabic ? "الوردية" : "Shift")
             </button>
             <button class="btn btn-outline-danger btn-sm" onclick="voidOrder()">
-                <i class="bi bi-x-circle me-1"></i>Void
+                <i class="bi bi-x-circle me-1"></i>@(isArabic ? "إلغاء" : "Void")
             </button>
         </div>
     </div>
@@ -121,7 +125,7 @@
             <!-- All -->
             <div class="cat-item active" onclick="filterCategory(null, this)" data-category="">
                 <span class="cat-icon"><i class="bi bi-grid-3x3-gap-fill"></i></span>
-                <span class="cat-label">All</span>
+                <span class="cat-label">@(isArabic ? "الكل" : "All")</span>
             </div>
             @foreach (var cat in Model.Categories)
             {
@@ -149,7 +153,7 @@
             <div class="input-group mb-3">
                 <span class="input-group-text"><i class="bi bi-search"></i></span>
                 <input type="text" class="form-control" id="productSearch"
-                       placeholder="Search by name or barcode (Alt+S)" />
+                       placeholder="@(isArabic ? "بحث بالاسم أو الباركود (Alt+S)" : "Search by name or barcode (Alt+S)")" />
                 <span class="input-group-text text-muted small">Alt+S</span>
             </div>
 
@@ -189,7 +193,7 @@
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h6 class="fw-bold mb-0">
                     <i class="bi bi-cart3 me-2 text-success"></i>
-                    Order <span id="orderNumber" class="text-muted fw-normal fs-6">#New</span>
+                    @(isArabic ? "الطلب" : "Order") <span id="orderNumber" class="text-muted fw-normal fs-6">#@(isArabic ? "جديد" : "New")</span>
                 </h6>
                 <button class="btn btn-link btn-sm text-danger p-0" onclick="clearOrder()">
                     <i class="bi bi-trash"></i>
@@ -200,7 +204,7 @@
             <div class="order-items" id="orderItems">
                 <p class="text-center text-muted small py-4" id="emptyCart">
                     <i class="bi bi-cart-x d-block fs-2 mb-2"></i>
-                    No items added yet
+                    @(isArabic ? "لا توجد عناصر بعد" : "No items added yet")
                 </p>
             </div>
 
@@ -209,43 +213,43 @@
             <!-- Order Totals -->
             <div class="small">
                 <div class="d-flex justify-content-between py-1">
-                    <span class="text-muted">Subtotal</span>
+                    <span class="text-muted">@(isArabic ? "المجموع الفرعي" : "Subtotal")</span>
                     <span id="subtotal">0.00</span>
                 </div>
                 <div class="d-flex justify-content-between py-1" id="discountRow" style="display:none!important">
-                    <span class="text-danger">Discount</span>
+                    <span class="text-danger">@(isArabic ? "الخصم" : "Discount")</span>
                     <span id="discount" class="text-danger">-0.00</span>
                 </div>
                 <div class="d-flex justify-content-between py-1">
-                    <span class="text-muted">VAT (15%)</span>
+                    <span class="text-muted">@(isArabic ? "ضريبة القيمة المضافة (15%)" : "VAT (15%)")</span>
                     <span id="tax">0.00</span>
                 </div>
             </div>
             <div class="d-flex justify-content-between py-2 border-top mt-1">
-                <span class="fw-bold fs-5">Total</span>
+                <span class="fw-bold fs-5">@(isArabic ? "الإجمالي" : "Total")</span>
                 <span class="fw-bold fs-5 text-success" id="total">0.00 SAR</span>
             </div>
 
             <!-- Coupon -->
             <div class="input-group input-group-sm mb-3">
-                <input type="text" class="form-control" id="couponCode" placeholder="Coupon code" />
-                <button class="btn btn-outline-secondary" onclick="applyCoupon()">Apply</button>
+                <input type="text" class="form-control" id="couponCode" placeholder="@(isArabic ? "رمز الكوبون" : "Coupon code")" />
+                <button class="btn btn-outline-secondary" onclick="applyCoupon()">@(isArabic ? "تطبيق" : "Apply")</button>
             </div>
 
             <!-- Payment Buttons -->
             <div class="d-grid gap-2">
                 <button class="btn btn-success btn-lg fw-bold py-3" onclick="processPayment('Cash')">
-                    <i class="bi bi-cash-coin me-2"></i>Cash Payment
+                    <i class="bi bi-cash-coin me-2"></i>@(isArabic ? "الدفع نقداً" : "Cash Payment")
                 </button>
                 <div class="row g-2">
                     <div class="col-6">
                         <button class="btn btn-outline-primary w-100" onclick="processPayment('Card')">
-                            <i class="bi bi-credit-card me-1"></i>Card
+                            <i class="bi bi-credit-card me-1"></i>@(isArabic ? "بطاقة" : "Card")
                         </button>
                     </div>
                     <div class="col-6">
                         <button class="btn btn-outline-secondary w-100" onclick="showSplitPayment()">
-                            <i class="bi bi-distribute-vertical me-1"></i>Split
+                            <i class="bi bi-distribute-vertical me-1"></i>@(isArabic ? "تقسيم" : "Split")
                         </button>
                     </div>
                 </div>
@@ -259,21 +263,21 @@
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Cash Payment</h5>
+                <h5 class="modal-title">@(isArabic ? "الدفع نقداً" : "Cash Payment")</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body text-center">
                 <div class="mb-3">
-                    <div class="text-muted">Total Amount</div>
+                    <div class="text-muted">@(isArabic ? "المبلغ الإجمالي" : "Total Amount")</div>
                     <div class="fs-2 fw-bold text-success" id="payTotal">0.00 SAR</div>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Cash Tendered</label>
+                    <label class="form-label">@(isArabic ? "المبلغ المدفوع" : "Cash Tendered")</label>
                     <input type="number" class="form-control form-control-lg text-center" id="cashTendered"
                            step="0.01" min="0" placeholder="0.00" />
                 </div>
                 <div class="mb-3">
-                    <div class="text-muted">Change</div>
+                    <div class="text-muted">@(isArabic ? "الباقي" : "Change")</div>
                     <div class="fs-3 fw-bold" id="changeAmount">0.00 SAR</div>
                 </div>
                 <!-- Numpad -->
@@ -287,15 +291,15 @@
                     }
                     <div class="col-12">
                         <button class="btn btn-outline-danger w-100 numpad-btn" onclick="numpadClear()">
-                            <i class="bi bi-backspace"></i> Clear
+                            <i class="bi bi-backspace"></i> @(isArabic ? "مسح" : "Clear")
                         </button>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@(isArabic ? "إلغاء" : "Cancel")</button>
                 <button type="button" class="btn btn-success btn-lg flex-grow-1" onclick="confirmPayment()">
-                    <i class="bi bi-check-lg me-2"></i>Confirm Payment
+                    <i class="bi bi-check-lg me-2"></i>@(isArabic ? "تأكيد الدفع" : "Confirm Payment")
                 </button>
             </div>
         </div>
@@ -307,15 +311,15 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modifierProductName">Select Options</h5>
+                <h5 class="modal-title" id="modifierProductName">@(isArabic ? "اختر الخيارات" : "Select Options")</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="modifierGroups">
                 <!-- Dynamically loaded modifier groups -->
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success" onclick="confirmModifiers()">Add to Order</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@(isArabic ? "إلغاء" : "Cancel")</button>
+                <button type="button" class="btn btn-success" onclick="confirmModifiers()">@(isArabic ? "إضافة للطلب" : "Add to Order")</button>
             </div>
         </div>
     </div>
@@ -349,17 +353,14 @@ function addToOrder(productId, name, price, taxRate, variantName = null, modifie
 }
 
 // --- Render order panel ---
+const emptyCartHtml = `<p class="text-center text-muted small py-4" id="emptyCart"><i class="bi bi-cart-x d-block fs-2 mb-2"></i>@(isArabic ? "لا توجد عناصر بعد" : "No items added yet")</p>`;
 function renderOrder() {
     const container = document.getElementById('orderItems');
-    const emptyMsg = document.getElementById('emptyCart');
     if (orderItems.length === 0) {
-        container.innerHTML = '';
-        emptyMsg.style.display = '';
-        container.appendChild(emptyMsg);
+        container.innerHTML = emptyCartHtml;
         updateTotals(0, 0, 0);
         return;
     }
-    emptyMsg.style.display = 'none';
     container.innerHTML = orderItems.map((item, idx) => `
         <div class="pos-order-item" data-idx="${idx}">
             <div class="d-flex justify-content-between align-items-start">
