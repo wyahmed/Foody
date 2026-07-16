@@ -270,10 +270,16 @@
   <data name="Dine In" xml:space="preserve">
     <value>Dine In</value>
   </data>
+  <data name="DineIn" xml:space="preserve">
+    <value>Dine In</value>
+  </data>
   <data name="Discount" xml:space="preserve">
     <value>Discount</value>
   </data>
   <data name="Drive Through" xml:space="preserve">
+    <value>Drive Through</value>
+  </data>
+  <data name="DriveThrough" xml:space="preserve">
     <value>Drive Through</value>
   </data>
   <data name="EUR – Euro" xml:space="preserve">
@@ -347,6 +353,9 @@
   </data>
   <data name="Inventory" xml:space="preserve">
     <value>Inventory</value>
+  </data>
+  <data name="In Stock" xml:space="preserve">
+    <value>In Stock</value>
   </data>
   <data name="Invite Employee" xml:space="preserve">
     <value>Invite Employee</value>
@@ -784,6 +793,9 @@
     <value>Table Status</value>
   </data>
   <data name="Take Away" xml:space="preserve">
+    <value>Take Away</value>
+  </data>
+  <data name="TakeAway" xml:space="preserve">
     <value>Take Away</value>
   </data>
   <data name="Tax &amp; Finance" xml:space="preserve">

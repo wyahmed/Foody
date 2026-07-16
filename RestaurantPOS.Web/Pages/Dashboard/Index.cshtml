@@ -111,10 +111,10 @@
                                         <a href="/Orders/@order.Id" class="fw-semibold text-decoration-none">@order.OrderNumber</a>
                                     </td>
                                     <td>@(order.CustomerName ?? Localizer["Walk-in"])</td>
-                                    <td><span class="badge bg-secondary">@order.OrderType</span></td>
+                                    <td><span class="badge bg-secondary">@Localizer[order.OrderType]</span></td>
                                     <td class="fw-semibold">@order.TotalAmount.ToString("N2")</td>
                                     <td>
-                                        <span class="badge @GetStatusBadge(order.Status.ToString())">@order.Status</span>
+                                        <span class="badge @GetStatusBadge(order.Status.ToString())">@Localizer[order.Status.ToString()]</span>
                                     </td>
                                 </tr>
                             }
