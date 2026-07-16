@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using RestaurantPOS.Domain.Enums;
 using RestaurantPOS.Domain.Interfaces;
 using RestaurantPOS.Infrastructure.Data;
+using RestaurantPOS.Web.Extensions;
 
 namespace RestaurantPOS.Web.Pages.Reports;
 
@@ -115,16 +116,19 @@ public class IndexModel : PageModel
         await OnGetAsync();
 
         using var wb = new XLWorkbook();
-        var ws = wb.Worksheets.Add("Sales Report");
+        var ws = wb.Worksheets.Add(this.T("Reports"));
 
-        ws.Cell(1, 1).Value = $"Sales Report: {DateFrom:dd MMM yyyy} - {DateTo:dd MMM yyyy}";
+        ws.Cell(1, 1).Value = this.T(
+            "Sales Report: {0} - {1}",
+            DateFrom.ToString("dd MMM yyyy"),
+            DateTo.ToString("dd MMM yyyy"));
         ws.Cell(1, 1).Style.Font.Bold = true;
         ws.Cell(1, 1).Style.Font.FontSize = 14;
 
         int row = 3;
-        ws.Cell(row, 1).Value = "Date"; ws.Cell(row, 2).Value = "Orders";
-        ws.Cell(row, 3).Value = "Gross Sales"; ws.Cell(row, 4).Value = "Discount";
-        ws.Cell(row, 5).Value = "VAT"; ws.Cell(row, 6).Value = "Net Sales";
+        ws.Cell(row, 1).Value = this.T("Date"); ws.Cell(row, 2).Value = this.T("Orders");
+        ws.Cell(row, 3).Value = this.T("Gross Sales"); ws.Cell(row, 4).Value = this.T("Discount");
+        ws.Cell(row, 5).Value = this.T("VAT"); ws.Cell(row, 6).Value = this.T("Net Sales");
         ws.Row(row).Style.Font.Bold = true;
         row++;
 

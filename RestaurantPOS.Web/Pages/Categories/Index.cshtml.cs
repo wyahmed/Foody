@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using RestaurantPOS.Domain.Interfaces;
 using RestaurantPOS.Infrastructure.Data;
+using RestaurantPOS.Web.Extensions;
 
 namespace RestaurantPOS.Web.Pages.Categories;
 
@@ -104,28 +105,28 @@ public class IndexModel : PageModel
 
         if (category == null)
         {
-            TempData["Error"] = "Category not found.";
+            this.SetErrorMessage("Category not found.");
             return RedirectToPage();
         }
 
         var hasSubCategories = await _db.Categories.AnyAsync(c => c.ParentCategoryId == id && c.TenantId == tenantId);
         if (hasSubCategories)
         {
-            TempData["Error"] = "Delete or reassign subcategories before deleting this category.";
+            this.SetErrorMessage("Delete or reassign subcategories before deleting this category.");
             return RedirectToPage();
         }
 
         var hasProducts = await _db.Products.AnyAsync(p => p.CategoryId == id && p.TenantId == tenantId);
         if (hasProducts)
         {
-            TempData["Error"] = "Delete or reassign products before deleting this category.";
+            this.SetErrorMessage("Delete or reassign products before deleting this category.");
             return RedirectToPage();
         }
 
         _db.Categories.Remove(category);
         await _db.SaveChangesAsync();
 
-        TempData["Success"] = "Category deleted.";
+        this.SetSuccessMessage("Category deleted.");
         return RedirectToPage();
     }
 }

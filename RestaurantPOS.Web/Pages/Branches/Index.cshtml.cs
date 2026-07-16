@@ -6,6 +6,7 @@ using RestaurantPOS.Domain.Entities;
 using RestaurantPOS.Domain.Enums;
 using RestaurantPOS.Domain.Interfaces;
 using RestaurantPOS.Infrastructure.Data;
+using RestaurantPOS.Web.Extensions;
 
 namespace RestaurantPOS.Web.Pages.Branches;
 
@@ -52,7 +53,7 @@ public class IndexModel : PageModel
 
         if (string.IsNullOrWhiteSpace(name))
         {
-            TempData["Error"] = "Branch name is required.";
+            this.SetErrorMessage("Branch name is required.");
             return RedirectToPage();
         }
 
@@ -73,7 +74,7 @@ public class IndexModel : PageModel
         _db.Branches.Add(branch);
         await _db.SaveChangesAsync();
 
-        TempData["Success"] = "Branch added successfully.";
+        this.SetSuccessMessage("Branch added successfully.");
         return RedirectToPage();
     }
 
@@ -89,7 +90,7 @@ public class IndexModel : PageModel
 
         if (string.IsNullOrWhiteSpace(name))
         {
-            TempData["Error"] = "Branch name is required.";
+            this.SetErrorMessage("Branch name is required.");
             return RedirectToPage();
         }
 
@@ -101,7 +102,7 @@ public class IndexModel : PageModel
 
         await _db.SaveChangesAsync();
 
-        TempData["Success"] = "Branch updated successfully.";
+        this.SetSuccessMessage("Branch updated successfully.");
         return RedirectToPage();
     }
 }

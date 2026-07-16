@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using RestaurantPOS.Domain.Entities;
 using RestaurantPOS.Domain.Interfaces;
 using RestaurantPOS.Infrastructure.Data;
+using RestaurantPOS.Web.Extensions;
 
 namespace RestaurantPOS.Web.Pages.Products;
 
@@ -141,7 +142,7 @@ public class EditModel : PageModel
         }
 
         await _db.SaveChangesAsync();
-        TempData["Success"] = "Product saved successfully.";
+        this.SetSuccessMessage("Product saved successfully.");
         return RedirectToPage("/Products/Index");
     }
 
@@ -153,7 +154,7 @@ public class EditModel : PageModel
             .FirstOrDefaultAsync();
 
         if (product != null) { product.IsDeleted = true; await _db.SaveChangesAsync(); }
-        TempData["Success"] = "Product deleted.";
+        this.SetSuccessMessage("Product deleted.");
         return RedirectToPage("/Products/Index");
     }
 

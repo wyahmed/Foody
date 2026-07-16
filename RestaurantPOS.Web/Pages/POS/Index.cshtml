@@ -4,7 +4,7 @@
 @using System.Text.Json
 @using System.Text.Encodings.Web
 @{
-    ViewData["Title"] = "POS";
+    ViewData["Title"] = Localizer["POS"];
     Layout = "_Layout";
     var currentLang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var isArabic = currentLang == "ar";

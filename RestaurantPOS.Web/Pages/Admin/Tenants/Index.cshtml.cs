@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using RestaurantPOS.Domain.Entities;
 using RestaurantPOS.Infrastructure.Data;
 using RestaurantPOS.Shared.Constants;
+using RestaurantPOS.Web.Extensions;
 
 namespace RestaurantPOS.Web.Pages.Admin.Tenants;
 
@@ -51,7 +52,7 @@ public class IndexModel : PageModel
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            TempData["Error"] = "Tenant name is required.";
+            this.SetErrorMessage("Tenant name is required.");
             return RedirectToPage();
         }
 
@@ -77,7 +78,7 @@ public class IndexModel : PageModel
         _db.Tenants.Add(tenant);
         await _db.SaveChangesAsync();
 
-        TempData["Success"] = $"Tenant '{tenant.Name}' created successfully.";
+        this.SetSuccessMessage("Tenant '{0}' created successfully.", tenant.Name);
         return RedirectToPage();
     }
 
@@ -88,7 +89,7 @@ public class IndexModel : PageModel
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            TempData["Error"] = "Tenant name is required.";
+            this.SetErrorMessage("Tenant name is required.");
             return RedirectToPage();
         }
 
@@ -112,7 +113,7 @@ public class IndexModel : PageModel
 
         await _db.SaveChangesAsync();
 
-        TempData["Success"] = $"Tenant '{tenant.Name}' updated successfully.";
+        this.SetSuccessMessage("Tenant '{0}' updated successfully.", tenant.Name);
         return RedirectToPage();
     }
 
@@ -127,7 +128,9 @@ public class IndexModel : PageModel
         tenant.IsActive = !tenant.IsActive;
         await _db.SaveChangesAsync();
 
-        TempData["Success"] = $"Tenant '{tenant.Name}' is now {(tenant.IsActive ? "active" : "inactive")}.";
+        this.SetSuccessMessage(
+            tenant.IsActive ? "Tenant '{0}' is now active." : "Tenant '{0}' is now inactive.",
+            tenant.Name);
         return RedirectToPage();
     }
 }

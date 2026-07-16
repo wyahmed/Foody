@@ -924,4 +924,103 @@
   <data name="{0} total tables" xml:space="preserve">
     <value>{0} total tables</value>
   </data>
+  <data name="POS" xml:space="preserve">
+    <value>POS</value>
+  </data>
+  <data name="Reports" xml:space="preserve">
+    <value>Reports</value>
+  </data>
+  <data name="Gross Sales" xml:space="preserve">
+    <value>Gross Sales</value>
+  </data>
+  <data name="Net Sales" xml:space="preserve">
+    <value>Net Sales</value>
+  </data>
+  <data name="Sales Report: {0} - {1}" xml:space="preserve">
+    <value>Sales Report: {0} - {1}</value>
+  </data>
+  <data name="Branch name is required." xml:space="preserve">
+    <value>Branch name is required.</value>
+  </data>
+  <data name="Branch added successfully." xml:space="preserve">
+    <value>Branch added successfully.</value>
+  </data>
+  <data name="Branch updated successfully." xml:space="preserve">
+    <value>Branch updated successfully.</value>
+  </data>
+  <data name="Category saved successfully." xml:space="preserve">
+    <value>Category saved successfully.</value>
+  </data>
+  <data name="Selected parent category was not found." xml:space="preserve">
+    <value>Selected parent category was not found.</value>
+  </data>
+  <data name="A category cannot be its own parent." xml:space="preserve">
+    <value>A category cannot be its own parent.</value>
+  </data>
+  <data name="A category cannot be assigned to one of its descendants." xml:space="preserve">
+    <value>A category cannot be assigned to one of its descendants.</value>
+  </data>
+  <data name="Category not found." xml:space="preserve">
+    <value>Category not found.</value>
+  </data>
+  <data name="Delete or reassign subcategories before deleting this category." xml:space="preserve">
+    <value>Delete or reassign subcategories before deleting this category.</value>
+  </data>
+  <data name="Delete or reassign products before deleting this category." xml:space="preserve">
+    <value>Delete or reassign products before deleting this category.</value>
+  </data>
+  <data name="Category deleted." xml:space="preserve">
+    <value>Category deleted.</value>
+  </data>
+  <data name="First name is required." xml:space="preserve">
+    <value>First name is required.</value>
+  </data>
+  <data name="Customer added successfully." xml:space="preserve">
+    <value>Customer added successfully.</value>
+  </data>
+  <data name="Order cancelled successfully." xml:space="preserve">
+    <value>Order cancelled successfully.</value>
+  </data>
+  <data name="Profile updated successfully." xml:space="preserve">
+    <value>Profile updated successfully.</value>
+  </data>
+  <data name="New password and confirmation do not match." xml:space="preserve">
+    <value>New password and confirmation do not match.</value>
+  </data>
+  <data name="Password changed successfully." xml:space="preserve">
+    <value>Password changed successfully.</value>
+  </data>
+  <data name="Product saved successfully." xml:space="preserve">
+    <value>Product saved successfully.</value>
+  </data>
+  <data name="Product deleted." xml:space="preserve">
+    <value>Product deleted.</value>
+  </data>
+  <data name="Business settings saved." xml:space="preserve">
+    <value>Business settings saved.</value>
+  </data>
+  <data name="Tax settings saved." xml:space="preserve">
+    <value>Tax settings saved.</value>
+  </data>
+  <data name="Receipt settings saved." xml:space="preserve">
+    <value>Receipt settings saved.</value>
+  </data>
+  <data name="ZATCA settings saved." xml:space="preserve">
+    <value>ZATCA settings saved.</value>
+  </data>
+  <data name="Tenant name is required." xml:space="preserve">
+    <value>Tenant name is required.</value>
+  </data>
+  <data name="Tenant '{0}' created successfully." xml:space="preserve">
+    <value>Tenant '{0}' created successfully.</value>
+  </data>
+  <data name="Tenant '{0}' updated successfully." xml:space="preserve">
+    <value>Tenant '{0}' updated successfully.</value>
+  </data>
+  <data name="Tenant '{0}' is now active." xml:space="preserve">
+    <value>Tenant '{0}' is now active.</value>
+  </data>
+  <data name="Tenant '{0}' is now inactive." xml:space="preserve">
+    <value>Tenant '{0}' is now inactive.</value>
+  </data>
 </root>
