@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using RestaurantPOS.Domain.Enums;
 using RestaurantPOS.Domain.Interfaces;
 using RestaurantPOS.Infrastructure.Data;
+using RestaurantPOS.Web.Extensions;
 
 namespace RestaurantPOS.Web.Pages.Orders;
 
@@ -97,7 +98,7 @@ public class IndexModel : PageModel
 
         order.Status = OrderStatus.Cancelled;
         await _db.SaveChangesAsync();
-        TempData["Success"] = "Order cancelled successfully.";
+        this.SetSuccessMessage("Order cancelled successfully.");
         return RedirectToPage();
     }
 }

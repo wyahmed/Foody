@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using RestaurantPOS.Domain.Entities;
 using RestaurantPOS.Domain.Interfaces;
 using RestaurantPOS.Infrastructure.Data;
+using RestaurantPOS.Web.Extensions;
 
 namespace RestaurantPOS.Web.Pages.Customers;
 
@@ -68,7 +69,7 @@ public class IndexModel : PageModel
         var branchId = _currentUser.BranchId;
 
         if (string.IsNullOrWhiteSpace(firstName))
-            return BadRequest("First name is required.");
+            return BadRequest(this.T("First name is required."));
 
         var customer = new Customer
         {
@@ -82,7 +83,7 @@ public class IndexModel : PageModel
         _db.Customers.Add(customer);
         await _db.SaveChangesAsync();
 
-        TempData["Success"] = "Customer added successfully.";
+        this.SetSuccessMessage("Customer added successfully.");
         return RedirectToPage();
     }
 }

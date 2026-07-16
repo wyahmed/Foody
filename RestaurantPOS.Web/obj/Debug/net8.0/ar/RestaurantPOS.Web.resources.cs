@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RestaurantPOS.Web")]
 [assembly: System.Reflection.AssemblyCopyrightAttribute(" ")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+88405f5a7eb187e801e37ee9af52d9bc2cab97d3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d809459ae24aba1dc36f02e4abcccbb3001b9ae6")]
 [assembly: System.Reflection.AssemblyProductAttribute("RestaurantPOS.Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RestaurantPOS.Web")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -924,4 +924,103 @@
   <data name="{0} total tables" xml:space="preserve">
     <value>إجمالي الطاولات {0}</value>
   </data>
+  <data name="POS" xml:space="preserve">
+    <value>نقطة البيع</value>
+  </data>
+  <data name="Reports" xml:space="preserve">
+    <value>التقارير</value>
+  </data>
+  <data name="Gross Sales" xml:space="preserve">
+    <value>إجمالي المبيعات</value>
+  </data>
+  <data name="Net Sales" xml:space="preserve">
+    <value>صافي المبيعات</value>
+  </data>
+  <data name="Sales Report: {0} - {1}" xml:space="preserve">
+    <value>تقرير المبيعات: {0} - {1}</value>
+  </data>
+  <data name="Branch name is required." xml:space="preserve">
+    <value>اسم الفرع مطلوب.</value>
+  </data>
+  <data name="Branch added successfully." xml:space="preserve">
+    <value>تمت إضافة الفرع بنجاح.</value>
+  </data>
+  <data name="Branch updated successfully." xml:space="preserve">
+    <value>تم تحديث الفرع بنجاح.</value>
+  </data>
+  <data name="Category saved successfully." xml:space="preserve">
+    <value>تم حفظ الفئة بنجاح.</value>
+  </data>
+  <data name="Selected parent category was not found." xml:space="preserve">
+    <value>لم يتم العثور على الفئة الرئيسية المحددة.</value>
+  </data>
+  <data name="A category cannot be its own parent." xml:space="preserve">
+    <value>لا يمكن أن تكون الفئة هي الفئة الرئيسية لنفسها.</value>
+  </data>
+  <data name="A category cannot be assigned to one of its descendants." xml:space="preserve">
+    <value>لا يمكن إسناد الفئة إلى إحدى الفئات التابعة لها.</value>
+  </data>
+  <data name="Category not found." xml:space="preserve">
+    <value>لم يتم العثور على الفئة.</value>
+  </data>
+  <data name="Delete or reassign subcategories before deleting this category." xml:space="preserve">
+    <value>احذف الفئات الفرعية أو أعد إسنادها قبل حذف هذه الفئة.</value>
+  </data>
+  <data name="Delete or reassign products before deleting this category." xml:space="preserve">
+    <value>احذف المنتجات أو أعد إسنادها قبل حذف هذه الفئة.</value>
+  </data>
+  <data name="Category deleted." xml:space="preserve">
+    <value>تم حذف الفئة.</value>
+  </data>
+  <data name="First name is required." xml:space="preserve">
+    <value>الاسم الأول مطلوب.</value>
+  </data>
+  <data name="Customer added successfully." xml:space="preserve">
+    <value>تمت إضافة العميل بنجاح.</value>
+  </data>
+  <data name="Order cancelled successfully." xml:space="preserve">
+    <value>تم إلغاء الطلب بنجاح.</value>
+  </data>
+  <data name="Profile updated successfully." xml:space="preserve">
+    <value>تم تحديث الملف الشخصي بنجاح.</value>
+  </data>
+  <data name="New password and confirmation do not match." xml:space="preserve">
+    <value>كلمة المرور الجديدة وتأكيدها غير متطابقين.</value>
+  </data>
+  <data name="Password changed successfully." xml:space="preserve">
+    <value>تم تغيير كلمة المرور بنجاح.</value>
+  </data>
+  <data name="Product saved successfully." xml:space="preserve">
+    <value>تم حفظ المنتج بنجاح.</value>
+  </data>
+  <data name="Product deleted." xml:space="preserve">
+    <value>تم حذف المنتج.</value>
+  </data>
+  <data name="Business settings saved." xml:space="preserve">
+    <value>تم حفظ إعدادات النشاط بنجاح.</value>
+  </data>
+  <data name="Tax settings saved." xml:space="preserve">
+    <value>تم حفظ إعدادات الضرائب بنجاح.</value>
+  </data>
+  <data name="Receipt settings saved." xml:space="preserve">
+    <value>تم حفظ إعدادات الإيصال بنجاح.</value>
+  </data>
+  <data name="ZATCA settings saved." xml:space="preserve">
+    <value>تم حفظ إعدادات هيئة الزكاة والضريبة والجمارك بنجاح.</value>
+  </data>
+  <data name="Tenant name is required." xml:space="preserve">
+    <value>اسم المستأجر مطلوب.</value>
+  </data>
+  <data name="Tenant '{0}' created successfully." xml:space="preserve">
+    <value>تم إنشاء المستأجر '{0}' بنجاح.</value>
+  </data>
+  <data name="Tenant '{0}' updated successfully." xml:space="preserve">
+    <value>تم تحديث المستأجر '{0}' بنجاح.</value>
+  </data>
+  <data name="Tenant '{0}' is now active." xml:space="preserve">
+    <value>المستأجر '{0}' نشط الآن.</value>
+  </data>
+  <data name="Tenant '{0}' is now inactive." xml:space="preserve">
+    <value>المستأجر '{0}' غير نشط الآن.</value>
+  </data>
 </root>

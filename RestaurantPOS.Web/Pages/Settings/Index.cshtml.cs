@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using RestaurantPOS.Domain.Entities;
 using RestaurantPOS.Domain.Interfaces;
 using RestaurantPOS.Infrastructure.Data;
+using RestaurantPOS.Web.Extensions;
 
 namespace RestaurantPOS.Web.Pages.Settings;
 
@@ -46,7 +47,7 @@ public class IndexModel : PageModel
             ["Phone"] = phone,
             ["Address"] = address
         });
-        TempData["Success"] = "Business settings saved.";
+        this.SetSuccessMessage("Business settings saved.");
         return RedirectToPage();
     }
 
@@ -60,7 +61,7 @@ public class IndexModel : PageModel
             ["PricesIncludeVat"] = pricesIncludeVat.ToString().ToLower(),
             ["Currency"] = currency
         });
-        TempData["Success"] = "Tax settings saved.";
+        this.SetSuccessMessage("Tax settings saved.");
         return RedirectToPage();
     }
 
@@ -72,7 +73,7 @@ public class IndexModel : PageModel
             ["PrintQrCode"] = printQrCode.ToString().ToLower(),
             ["AutoPrint"] = autoPrint.ToString().ToLower()
         });
-        TempData["Success"] = "Receipt settings saved.";
+        this.SetSuccessMessage("Receipt settings saved.");
         return RedirectToPage();
     }
 
@@ -86,7 +87,7 @@ public class IndexModel : PageModel
             ["ZatcaPrivateKey"] = zatcaPrivateKey,
             ["ZatcaSimulation"] = zatcaSimulation.ToString().ToLower()
         });
-        TempData["Success"] = "ZATCA settings saved.";
+        this.SetSuccessMessage("ZATCA settings saved.");
         return RedirectToPage();
     }
 

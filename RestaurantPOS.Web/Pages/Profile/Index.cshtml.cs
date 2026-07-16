@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using RestaurantPOS.Domain.Interfaces;
 using RestaurantPOS.Infrastructure.Data;
 using RestaurantPOS.Infrastructure.Identity;
+using RestaurantPOS.Web.Extensions;
 
 namespace RestaurantPOS.Web.Pages.Profile;
 
@@ -81,7 +82,7 @@ public class IndexModel : PageModel
 
         if (string.IsNullOrWhiteSpace(firstName))
         {
-            TempData["Error"] = "First name is required.";
+            this.SetErrorMessage("First name is required.");
             return RedirectToPage();
         }
 
@@ -91,8 +92,10 @@ public class IndexModel : PageModel
         user.LastNameAr = lastNameAr?.Trim();
 
         var result = await _userManager.UpdateAsync(user);
-        TempData[result.Succeeded ? "Success" : "Error"] =
-            result.Succeeded ? "Profile updated successfully." : string.Join("; ", result.Errors.Select(e => e.Description));
+        if (result.Succeeded)
+            this.SetSuccessMessage("Profile updated successfully.");
+        else
+            TempData["Error"] = string.Join("; ", result.Errors.Select(e => e.Description));
 
         return RedirectToPage();
     }
@@ -105,13 +108,15 @@ public class IndexModel : PageModel
 
         if (newPassword != confirmPassword)
         {
-            TempData["Error"] = "New password and confirmation do not match.";
+            this.SetErrorMessage("New password and confirmation do not match.");
             return RedirectToPage();
         }
 
         var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
-        TempData[result.Succeeded ? "Success" : "Error"] =
-            result.Succeeded ? "Password changed successfully." : string.Join("; ", result.Errors.Select(e => e.Description));
+        if (result.Succeeded)
+            this.SetSuccessMessage("Password changed successfully.");
+        else
+            TempData["Error"] = string.Join("; ", result.Errors.Select(e => e.Description));
 
         return RedirectToPage();
     }

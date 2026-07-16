@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using RestaurantPOS.Domain.Entities;
 using RestaurantPOS.Domain.Interfaces;
 using RestaurantPOS.Infrastructure.Data;
+using RestaurantPOS.Web.Extensions;
 
 namespace RestaurantPOS.Web.Pages.Categories;
 
@@ -113,7 +114,7 @@ public class EditModel : PageModel
         }
 
         await _db.SaveChangesAsync();
-        TempData["Success"] = "Category saved successfully.";
+        this.SetSuccessMessage("Category saved successfully.");
         return RedirectToPage("/Categories/Index");
     }
 
@@ -139,7 +140,7 @@ public class EditModel : PageModel
         var parentExists = await _db.Categories.AnyAsync(c => c.Id == parentId && c.TenantId == tenantId);
         if (!parentExists)
         {
-            ModelState.AddModelError("Category.ParentCategoryId", "Selected parent category was not found.");
+            ModelState.AddModelError("Category.ParentCategoryId", this.T("Selected parent category was not found."));
             return;
         }
 
@@ -150,7 +151,7 @@ public class EditModel : PageModel
 
         if (parentId == Category.Id)
         {
-            ModelState.AddModelError("Category.ParentCategoryId", "A category cannot be its own parent.");
+            ModelState.AddModelError("Category.ParentCategoryId", this.T("A category cannot be its own parent."));
             return;
         }
 
@@ -159,7 +160,7 @@ public class EditModel : PageModel
         {
             if (currentParentId == Category.Id)
             {
-                ModelState.AddModelError("Category.ParentCategoryId", "A category cannot be assigned to one of its descendants.");
+                ModelState.AddModelError("Category.ParentCategoryId", this.T("A category cannot be assigned to one of its descendants."));
                 return;
             }
 
