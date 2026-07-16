@@ -270,10 +270,16 @@
   <data name="Dine In" xml:space="preserve">
     <value>داخل المطعم</value>
   </data>
+  <data name="DineIn" xml:space="preserve">
+    <value>داخل المطعم</value>
+  </data>
   <data name="Discount" xml:space="preserve">
     <value>الخصم</value>
   </data>
   <data name="Drive Through" xml:space="preserve">
+    <value>خدمة السيارات</value>
+  </data>
+  <data name="DriveThrough" xml:space="preserve">
     <value>خدمة السيارات</value>
   </data>
   <data name="EUR – Euro" xml:space="preserve">
@@ -347,6 +353,9 @@
   </data>
   <data name="Inventory" xml:space="preserve">
     <value>المخزون</value>
+  </data>
+  <data name="In Stock" xml:space="preserve">
+    <value>متوفر</value>
   </data>
   <data name="Invite Employee" xml:space="preserve">
     <value>دعوة موظف</value>
@@ -784,6 +793,9 @@
     <value>حالة الطاولات</value>
   </data>
   <data name="Take Away" xml:space="preserve">
+    <value>سفري</value>
+  </data>
+  <data name="TakeAway" xml:space="preserve">
     <value>سفري</value>
   </data>
   <data name="Tax &amp; Finance" xml:space="preserve">
